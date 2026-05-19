@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Throttle vs Debounce Event Flow Demo</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="app-shell" aria-labelledby="page-title">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Reactive event flow</p>
+          <h1 id="page-title">Throttle vs debounce</h1>
+        </div>
+        <p class="page-summary">
+          Compare a raw high-frequency stream with debounced and throttled output lanes.
+        </p>
+      </header>
+
+      <div class="workspace">
+        <div class="side-column">
+          <section class="control-panel" aria-labelledby="controls-title">
+            <div class="section-heading">
+              <h2 id="controls-title">Controls</h2>
+              <p id="control-status" role="status" aria-live="polite">Ready</p>
+            </div>
+
+            <div class="control-group">
+              <label for="event-text">Text event source</label>
+              <input
+                id="event-text"
+                name="event-text"
+                type="text"
+                autocomplete="off"
+                placeholder="Type here"
+              >
+            </div>
+
+            <div class="control-group">
+              <span class="field-label" id="event-pad-label">Pointer event source</span>
+              <div
+                id="event-pad"
+                class="event-pad"
+                role="button"
+                tabindex="0"
+                aria-labelledby="event-pad-label"
+              >
+                <span>Move pointer here</span>
+              </div>
+            </div>
+
+            <div class="button-row" aria-label="Demo actions">
+              <button id="burst-events" type="button">Run burst</button>
+              <button id="pause-events" type="button" aria-pressed="false">Pause</button>
+              <button id="reset-demo" type="button" disabled>Reset</button>
+            </div>
+
+            <div class="timing-controls" aria-label="Timing controls">
+              <div class="control-group">
+                <label for="debounce-delay">Debounce delay</label>
+                <div class="range-row">
+                  <input
+                    id="debounce-delay"
+                    name="debounce-delay"
+                    type="range"
+                    min="100"
+                    max="1200"
+                    step="50"
+                    value="400"
+                  >
+                  <output id="debounce-delay-value" for="debounce-delay">400 ms</output>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label for="throttle-interval">Throttle interval</label>
+                <div class="range-row">
+                  <input
+                    id="throttle-interval"
+                    name="throttle-interval"
+                    type="range"
+                    min="100"
+                    max="1200"
+                    step="50"
+                    value="300"
+                  >
+                  <output id="throttle-interval-value" for="throttle-interval">300 ms</output>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <aside id="learning-guide" class="learning-guide" aria-labelledby="learning-title">
+            <div class="section-heading">
+              <h2 id="learning-title">Decision guide</h2>
+            </div>
+
+            <ul class="concept-list" aria-label="Debounce and throttle summary">
+              <li>
+                <strong>Debounce</strong>
+                <span>Waits for a quiet period, then emits the latest event.</span>
+              </li>
+              <li>
+                <strong>Throttle</strong>
+                <span>Limits output frequency while events keep arriving.</span>
+              </li>
+            </ul>
+
+            <div class="use-case-guide">
+              <h3>Practical choices</h3>
+              <dl class="use-case-list">
+                <div>
+                  <dt>Search input</dt>
+                  <dd>Debounce so requests wait until typing settles.</dd>
+                </div>
+                <div>
+                  <dt>Resize events</dt>
+                  <dd>Debounce layout work after the window stops changing.</dd>
+                </div>
+                <div>
+                  <dt>Scroll events</dt>
+                  <dd>Throttle progress updates to a steady cadence.</dd>
+                </div>
+                <div>
+                  <dt>Pointer movement</dt>
+                  <dd>Throttle drawing or hit testing during continuous motion.</dd>
+                </div>
+              </dl>
+            </div>
+
+            <div class="snippet-guide">
+              <h3>Compact JavaScript</h3>
+              <div class="snippet-grid">
+                <section class="snippet-block" aria-labelledby="debounce-snippet-title">
+                  <h4 id="debounce-snippet-title">Debounce</h4>
+                  <pre><code>function debounce(fn, delay) {
+  let timerId;
+  return (...args) => {
+    clearTimeout(timerId);
+    timerId = setTimeout(() => fn(...args), delay);
+  };
+}</code></pre>
+                </section>
+
+                <section class="snippet-block" aria-labelledby="throttle-snippet-title">
+                  <h4 id="throttle-snippet-title">Throttle</h4>
+                  <pre><code>function throttle(fn, interval) {
+  let lastRun = 0;
+  return (...args) => {
+    const now = performance.now();
+    if (now - lastRun &gt;= interval) {
+      lastRun = now;
+      fn(...args);
+    }
+  };
+}</code></pre>
+                </section>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <section class="timeline-panel" aria-labelledby="timeline-title">
+          <div class="section-heading">
+            <h2 id="timeline-title">Event lanes</h2>
+            <p id="total-events">0 events captured</p>
+          </div>
+
+          <article id="raw-lane" class="lane lane-raw" aria-labelledby="raw-lane-title">
+            <div class="lane-header">
+              <div>
+                <p class="lane-kicker">Input stream</p>
+                <h3 id="raw-lane-title">Raw events</h3>
+              </div>
+              <span id="raw-count" class="count" aria-live="polite">0</span>
+            </div>
+            <div class="timeline-track" role="list" aria-label="Raw event markers"></div>
+          </article>
+
+          <article id="debounce-lane" class="lane lane-debounce" aria-labelledby="debounce-lane-title">
+            <div class="lane-header">
+              <div>
+                <p class="lane-kicker">After quiet time</p>
+                <h3 id="debounce-lane-title">Debounced output</h3>
+              </div>
+              <span id="debounce-count" class="count" aria-live="polite">0</span>
+            </div>
+            <div class="timeline-track" role="list" aria-label="Debounced output markers"></div>
+          </article>
+
+          <article id="throttle-lane" class="lane lane-throttle" aria-labelledby="throttle-lane-title">
+            <div class="lane-header">
+              <div>
+                <p class="lane-kicker">Limited cadence</p>
+                <h3 id="throttle-lane-title">Throttled output</h3>
+              </div>
+              <span id="throttle-count" class="count" aria-live="polite">0</span>
+            </div>
+            <div class="timeline-track" role="list" aria-label="Throttled output markers"></div>
+          </article>
+        </section>
+      </div>
+    </main>
+    <noscript>This demo shell needs JavaScript enabled for interactive controls.</noscript>
+  </body>
+</html>
