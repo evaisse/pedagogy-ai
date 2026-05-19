@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cache de tokens LLM pour agents de code</title>
+    <meta
+      name="description"
+      content="Mini-site pedagogique expliquant en francais comment le cache de tokens fonctionne sur les endpoints LLM avec les agents de code."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23f7f5ef'/%3E%3Cpath d='M18 35h10v10H18zM36 35h10v10H36zM27 19h10v10H27z' fill='%2300856f'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="./styles.css?v=20260519-dialogue" />
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Aller au contenu</a>
+    <div class="scroll-progress" aria-hidden="true">
+      <span data-progress-fill></span>
+    </div>
+
+    <header class="site-header" aria-label="Navigation de la page">
+      <a class="brand" href="#top" aria-label="Retour au debut">
+        <span class="brand-mark" aria-hidden="true">∴</span>
+        Cache LLM
+      </a>
+      <nav class="story-nav" aria-label="Etapes">
+        <a href="#prefix" data-nav-link="prefix">Préfixe</a>
+        <a href="#agent-loop" data-nav-link="agent-loop">Agent</a>
+        <a href="#breakers" data-nav-link="breakers">Ratés</a>
+        <a href="#pricing" data-nav-link="pricing">Prix</a>
+        <a href="#simulator" data-nav-link="simulator">Simuler</a>
+      </nav>
+    </header>
+
+    <main id="content">
+      <section id="top" class="hero story-section" data-section="top">
+        <div class="hero-copy">
+          <p class="eyebrow">Endpoints LLM + agents de code</p>
+          <h1>Le cache n’accélère pas la pensée du modèle. Il évite de relire ce qui n’a pas bougé.</h1>
+          <p class="lead">
+            Un agent de code renvoie souvent les mêmes règles, schémas d’outils et morceaux de dépôt à chaque tour.
+            Le cache de prompt transforme cette répétition en préfixe réutilisable.
+          </p>
+          <div class="hero-actions" aria-label="Actions rapides">
+            <a class="button primary" href="#prefix">Comprendre le mécanisme</a>
+            <a class="button secondary" href="#simulator">Tester un scénario</a>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-label="Exemple interactif de cache de prompt sur deux tours de chatbot">
+          <div class="chat-demo" data-chat-demo data-chat-state="cold">
+            <div class="chat-demo-header">
+              <div class="chat-demo-title">
+                <span>Faux échange IA</span>
+                <strong data-chat-title>Tour 1 · cache froid</strong>
+              </div>
+              <div class="chat-step-controls" role="group" aria-label="Choisir le tour de conversation">
+                <button class="chat-step-button is-active" type="button" data-chat-step="cold" aria-pressed="true">
+                  Tour 1
+                </button>
+                <button class="chat-step-button" type="button" data-chat-step="warm" aria-pressed="false">
+                  Tour 2
+                </button>
+              </div>
+            </div>
+
+            <div class="chat-window" aria-live="polite">
+              <article class="chat-message user-message">
+                <span class="chat-speaker">Utilisateur</span>
+                <p data-chat-user>Peux-tu trouver où le formulaire d’inscription est validé ?</p>
+              </article>
+              <article class="chat-message assistant-message">
+                <span class="chat-speaker">Assistant IA</span>
+                <p data-chat-assistant>
+                  Je lis les règles du projet, les outils disponibles et le contexte du dépôt avant de répondre.
+                </p>
+              </article>
+            </div>
+
+            <div class="prompt-panel">
+              <div class="prompt-panel-header">
+                <span>Prompt envoyé à l’endpoint</span>
+                <strong data-cache-mode>Cache froid : écriture du préfixe</strong>
+              </div>
+
+              <div class="cache-token-grid" aria-label="Parties cachees et non cachees du prompt">
+                <span class="cache-token stable">
+                  <b>Instructions</b>
+                  <em data-stable-cache-status>Écrit dans le cache</em>
+                </span>
+                <span class="cache-token stable">
+                  <b>Outils</b>
+                  <em data-stable-cache-status>Écrit dans le cache</em>
+                </span>
+                <span class="cache-token stable">
+                  <b>Règles projet</b>
+                  <em data-stable-cache-status>Écrit dans le cache</em>
+                </span>
+                <span class="cache-token stable">
+                  <b>Contexte repo</b>
+                  <em data-stable-cache-status>Écrit dans le cache</em>
+                </span>
+                <span class="cache-token volatile">
+                  <b data-tail-cache-label>Demande utilisateur</b>
+                  <em data-tail-cache-status>Relu normalement</em>
+                </span>
+              </div>
+
+              <div class="chat-legend">
+                <span><i class="legend-write"></i>écriture du cache</span>
+                <span><i class="legend-read"></i>lecture du cache</span>
+                <span><i class="legend-uncached"></i>non cache</span>
+              </div>
+
+              <p class="chat-explanation" data-chat-explanation>
+                Au premier tour, rien n’est encore disponible : le préfixe stable est traité puis stocké, tandis que
+                la demande du moment reste lue normalement.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="prefix" class="story-section split-section" data-section="prefix">
+        <div class="section-copy">
+          <p class="eyebrow">1 · Modèle mental</p>
+          <h2>Un cache de LLM est surtout un cache de préfixe.</h2>
+          <p>
+            L’endpoint reçoit une longue suite de tokens. Si le début de cette suite est identique à un début déjà
+            traité récemment, il peut réutiliser le travail effectué sur cette partie.
+          </p>
+          <p>
+            Le cache ne cherche pas une idée « proche ». Il reconnaît une entrée compatible selon les règles du
+            fournisseur : même modèle, même endpoint ou configuration pertinente, même préfixe exploitable.
+          </p>
+        </div>
+
+        <div class="sticky-visual prefix-visual" aria-label="Deux prompts partageant le meme prefixe">
+          <div class="visual-title">
+            <span>Deux tours d’agent</span>
+            <strong>Le début se répète, la fin change.</strong>
+          </div>
+          <div class="prompt-stack">
+            <div class="prompt-row">
+              <span class="row-label">Tour 1</span>
+              <span class="token stable">Instructions</span>
+              <span class="token stable">Schémas outils</span>
+              <span class="token stable">Contexte repo</span>
+              <span class="token volatile">Question A</span>
+            </div>
+            <div class="prompt-row">
+              <span class="row-label">Tour 2</span>
+              <span class="token stable">Instructions</span>
+              <span class="token stable">Schémas outils</span>
+              <span class="token stable">Contexte repo</span>
+              <span class="token volatile">Question B</span>
+            </div>
+          </div>
+          <div class="cache-legend">
+            <span><i class="legend-hit"></i>préfixe réutilisable</span>
+            <span><i class="legend-miss"></i>suffixe relu normalement</span>
+          </div>
+        </div>
+
+        <div class="chapter-demo" data-conversation-demo data-demo-state="one">
+          <div class="chapter-demo-header">
+            <div>
+              <span>Démo conversation</span>
+              <strong>Le préfixe stable revient au tour suivant.</strong>
+            </div>
+            <div class="chat-step-controls" role="group" aria-label="Choisir le tour de la demo prefixe">
+              <button class="chat-step-button is-active" type="button" data-demo-step="one" aria-pressed="true">
+                Tour 1
+              </button>
+              <button class="chat-step-button" type="button" data-demo-step="two" aria-pressed="false">
+                Tour 2
+              </button>
+            </div>
+          </div>
+          <div class="demo-panels" aria-live="polite">
+            <article class="demo-panel" data-demo-panel="one">
+              <div class="demo-prompt-entry">
+                <span>L’utilisateur saisit</span>
+                <p>« Où est validé le formulaire d’inscription ? »</p>
+              </div>
+              <div class="demo-response">
+                <span>L’IA répond</span>
+                <p>« Je vais lire les règles projet, les outils et le contexte du dépôt avant de chercher. »</p>
+              </div>
+              <div class="demo-cache-grid">
+                <span class="demo-token write">Instructions <em>écrit</em></span>
+                <span class="demo-token write">Outils <em>écrit</em></span>
+                <span class="demo-token write">Contexte repo <em>écrit</em></span>
+                <span class="demo-token fresh">Question A <em>frais</em></span>
+              </div>
+            </article>
+            <article class="demo-panel" data-demo-panel="two" hidden>
+              <div class="demo-prompt-entry">
+                <span>L’utilisateur continue</span>
+                <p>« Maintenant corrige le message d’erreur affiché. »</p>
+              </div>
+              <div class="demo-response">
+                <span>L’IA répond</span>
+                <p>« Je reprends le même contexte stable et je traite seulement ta nouvelle demande. »</p>
+              </div>
+              <div class="demo-cache-grid">
+                <span class="demo-token read">Instructions <em>cache</em></span>
+                <span class="demo-token read">Outils <em>cache</em></span>
+                <span class="demo-token read">Contexte repo <em>cache</em></span>
+                <span class="demo-token fresh">Question B <em>frais</em></span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="mechanism" class="story-section split-section reverse" data-section="mechanism">
+        <div class="section-copy">
+          <p class="eyebrow">2 · Mécanisme</p>
+          <h2>Le premier appel chauffe le chemin. Les suivants peuvent le reprendre.</h2>
+          <p>
+            Sur un premier appel, l’endpoint doit encoder et traiter tout le prompt. Sur les appels suivants, si le
+            début reste identique, une partie du coût d’entrée et de la latence peut baisser.
+          </p>
+          <p>
+            La génération de sortie reste du vrai calcul. Le cache ne remplace pas le raisonnement ni les tokens
+            produits par le modèle.
+          </p>
+        </div>
+
+        <div class="sticky-visual timeline-visual" aria-label="Chronologie d'un cache froid puis chaud">
+          <div class="timeline">
+            <article class="timeline-step cold">
+              <span class="step-number">01</span>
+              <div>
+                <h3>Cache froid</h3>
+                <p>Tout le prompt est lu. Le préfixe peut être indexé pour plus tard.</p>
+              </div>
+            </article>
+            <article class="timeline-step warm">
+              <span class="step-number">02</span>
+              <div>
+                <h3>Cache chaud</h3>
+                <p>Le même préfixe revient. L’endpoint reprend le travail déjà disponible.</p>
+              </div>
+            </article>
+            <article class="timeline-step tail">
+              <span class="step-number">03</span>
+              <div>
+                <h3>Suffixe nouveau</h3>
+                <p>La demande, les diffs et les logs récents restent lus normalement.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="chapter-demo" data-conversation-demo data-demo-state="one">
+          <div class="chapter-demo-header">
+            <div>
+              <span>Démo conversation</span>
+              <strong>Le premier appel chauffe, le second reprend.</strong>
+            </div>
+            <div class="chat-step-controls" role="group" aria-label="Choisir le tour de la demo mecanisme">
+              <button class="chat-step-button is-active" type="button" data-demo-step="one" aria-pressed="true">
+                Tour 1
+              </button>
+              <button class="chat-step-button" type="button" data-demo-step="two" aria-pressed="false">
+                Tour 2
+              </button>
+            </div>
+          </div>
+          <div class="demo-panels" aria-live="polite">
+            <article class="demo-panel" data-demo-panel="one">
+              <div class="demo-prompt-entry">
+                <span>L’utilisateur saisit</span>
+                <p>« Explique pourquoi le test d’authentification échoue. »</p>
+              </div>
+              <div class="demo-response">
+                <span>L’IA répond</span>
+                <p>« Je dois d’abord prétraiter tout le contexte pour produire une réponse. »</p>
+              </div>
+              <div class="demo-cache-grid">
+                <span class="demo-token write">Préfixe complet <em>écrit</em></span>
+                <span class="demo-token write">KV interne <em>créé</em></span>
+                <span class="demo-token fresh">Question <em>frais</em></span>
+                <span class="demo-token fresh">Réponse <em>générée</em></span>
+              </div>
+            </article>
+            <article class="demo-panel" data-demo-panel="two" hidden>
+              <div class="demo-prompt-entry">
+                <span>L’utilisateur continue</span>
+                <p>« Le log indique une erreur 401, vérifie la cause. »</p>
+              </div>
+              <div class="demo-response">
+                <span>L’IA répond</span>
+                <p>« Le préfixe déjà calculé est repris ; je ne traite à neuf que le log et la demande. »</p>
+              </div>
+              <div class="demo-cache-grid">
+                <span class="demo-token read">Préfixe complet <em>cache</em></span>
+                <span class="demo-token read">KV interne <em>repris</em></span>
+                <span class="demo-token fresh">Log 401 <em>frais</em></span>
+                <span class="demo-token fresh">Réponse <em>générée</em></span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="agent-loop" class="story-section split-section" data-section="agent-loop">
+        <div class="section-copy">
+          <p class="eyebrow">3 · Pourquoi les agents de code en profitent</p>
+          <h2>Un agent répète une grande base et ne change que le bord actif.</h2>
+          <p>
+            Dans une session de codage, la base stable est volumineuse : consignes système, règles du dépôt,
+            définitions des outils, fichiers ouverts, plan courant. Le bord actif est plus petit : dernière commande,
+            erreur de test, diff ou question de l’utilisateur.
+          </p>
+          <p>
+            Plus l’agent garde cette base stable au début du prompt, plus les tours successifs ont une chance de
+            toucher le cache.
+          </p>
+        </div>
+
+        <div class="sticky-visual agent-visual" aria-label="Anatomie d'un prompt d'agent de code">
+          <div class="agent-prompt">
+            <div class="prompt-band stable-band">
+              <span>Base stable</span>
+              <strong>instructions · outils · contexte dépôt</strong>
+            </div>
+            <div class="prompt-band active-band">
+              <span>Bord actif</span>
+              <strong>demande · sortie shell · diff · erreur</strong>
+            </div>
+          </div>
+          <div class="loop-grid">
+            <div class="loop-card">
+              <span>Tour 1</span>
+              <strong>Lire le bug</strong>
+            </div>
+            <div class="loop-card">
+              <span>Tour 2</span>
+              <strong>Modifier un fichier</strong>
+            </div>
+            <div class="loop-card">
+              <span>Tour 3</span>
+              <strong>Relancer les tests</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="chapter-demo" data-conversation-demo data-demo-state="one">
+          <div class="chapter-demo-header">
+            <div>
+              <span>Démo conversation</span>
+              <strong>L’agent garde une base commune et append le bord actif.</strong>
+            </div>
+            <div class="chat-step-controls" role="group" aria-label="Choisir le tour de la demo agent">
+              <button class="chat-step-button is-active" type="button" data-demo-step="one" aria-pressed="true">
+                Tour 1
+              </button>
+              <button class="chat-step-button" type="button" data-demo-step="two" aria-pressed="false">
+                Tour 2
+              </button>
+            </div>
+          </div>
+          <div class="demo-panels" aria-live="polite">
+            <article class="demo-panel" data-demo-panel="one">
+              <div class="demo-prompt-entry">
+                <span>L’utilisateur saisit</span>
+                <p>« Lis les fichiers liés au checkout et propose un plan. »</p>
+              </div>
+              <div class="demo-response">
+                <span>L’IA répond</span>
+                <p>« Je charge les consignes, les outils et les fichiers utiles, puis je propose l’étape suivante. »</p>
+              </div>
+              <div class="demo-cache-grid">
+                <span class="demo-token write">Consignes <em>écrit</em></span>
+                <span class="demo-token write">Outils <em>écrit</em></span>
+                <span class="demo-token write">Fichiers lus <em>écrit</em></span>
+                <span class="demo-token fresh">Plan demandé <em>frais</em></span>
+              </div>
+            </article>
+            <article class="demo-panel" data-demo-panel="two" hidden>
+              <div class="demo-prompt-entry">
+                <span>L’utilisateur continue</span>
+                <p>« Applique le plan et relance le test ciblé. »</p>
+              </div>
+              <div class="demo-response">
+                <span>L’IA répond</span>
+                <p>« La base reste identique ; j’ajoute seulement le diff, la commande et le résultat du test. »</p>
+              </div>
+              <div class="demo-cache-grid">
+                <span class="demo-token read">Consignes <em>cache</em></span>
+                <span class="demo-token read">Outils <em>cache</em></span>
+                <span class="demo-token read">Fichiers lus <em>cache</em></span>
+                <span class="demo-token fresh">Diff + test <em>frais</em></span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="breakers" class="story-section breakers-section" data-section="breakers">
+        <div class="section-copy narrow">
+          <p class="eyebrow">4 · Ce qui casse le cache</p>
+          <h2>Un changement tôt dans le prompt coûte plus cher qu’un changement tardif.</h2>
+          <p>
+            L’idée pratique : placer ce qui bouge souvent après ce qui bouge rarement. Un agent efficace stabilise le
+            préambule et pousse les informations volatiles vers la fin.
+          </p>
+        </div>
+
+        <div class="breaker-grid" aria-label="Situations qui aident ou cassent le cache">
+          <article class="breaker-card good">
+            <span class="breaker-status">Aide le cache</span>
+            <h3>Ordre stable des outils</h3>
+            <p>Les schémas et noms d’outils restent dans le même ordre entre deux tours.</p>
+          </article>
+          <article class="breaker-card bad">
+            <span class="breaker-status">Casse tôt</span>
+            <h3>Réécrire le système prompt</h3>
+            <p>Une variation au début décale tout le préfixe exploitable.</p>
+          </article>
+          <article class="breaker-card bad">
+            <span class="breaker-status">Casse souvent</span>
+            <h3>Contexte régénéré au hasard</h3>
+            <p>Un tri non déterministe ou des résumés changeants réduisent les hits.</p>
+          </article>
+          <article class="breaker-card neutral">
+            <span class="breaker-status">Dépend du fournisseur</span>
+            <h3>TTL, modèle, routage</h3>
+            <p>Durée de vie, granularité et facturation restent propres à chaque endpoint.</p>
+          </article>
+        </div>
+
+        <div class="chapter-demo" data-conversation-demo data-demo-state="one">
+          <div class="chapter-demo-header">
+            <div>
+              <span>Démo conversation</span>
+              <strong>Un détail dynamique au début peut annuler le hit.</strong>
+            </div>
+            <div class="chat-step-controls" role="group" aria-label="Choisir le tour de la demo rates">
+              <button class="chat-step-button is-active" type="button" data-demo-step="one" aria-pressed="true">
+                Tour 1
+              </button>
+              <button class="chat-step-button" type="button" data-demo-step="two" aria-pressed="false">
+                Tour 2
+              </button>
+            </div>
+          </div>
+          <div class="demo-panels" aria-live="polite">
+            <article class="demo-panel" data-demo-panel="one">
+              <div class="demo-prompt-entry">
+                <span>L’utilisateur saisit</span>
+                <p>« Cherche pourquoi le bouton “Payer” est désactivé. »</p>
+              </div>
+              <div class="demo-response">
+                <span>L’IA répond</span>
+                <p>« Le préambule est stable, donc il pourra servir de base si le prochain tour l’appelle pareil. »</p>
+              </div>
+              <div class="demo-cache-grid">
+                <span class="demo-token write">Préambule stable <em>écrit</em></span>
+                <span class="demo-token write">Outils ordonnés <em>écrit</em></span>
+                <span class="demo-token write">Contexte <em>écrit</em></span>
+                <span class="demo-token fresh">Question <em>frais</em></span>
+              </div>
+            </article>
+            <article class="demo-panel" data-demo-panel="two" hidden>
+              <div class="demo-prompt-entry">
+                <span>L’utilisateur continue</span>
+                <p>« Même question, mais le prompt commence par un timestamp différent. »</p>
+              </div>
+              <div class="demo-response">
+                <span>L’IA répond</span>
+                <p>« Le début a changé : le préfixe attendu ne correspond plus et le cache devient moins utile. »</p>
+              </div>
+              <div class="demo-cache-grid">
+                <span class="demo-token broken">Timestamp <em>casse</em></span>
+                <span class="demo-token fresh">Outils décalés <em>frais</em></span>
+                <span class="demo-token fresh">Contexte <em>relu</em></span>
+                <span class="demo-token fresh">Question <em>frais</em></span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="pricing" class="story-section pricing-section" data-section="pricing">
+        <div class="section-copy narrow">
+          <p class="eyebrow">5 · Économie du cache</p>
+          <h2>Écrire dans le cache et lire depuis le cache ne coûtent pas toujours pareil.</h2>
+          <p>
+            Tous les fournisseurs ne vendent pas le même compromis. Certains rendent le cache presque invisible :
+            premier passage au prix normal, lectures suivantes moins chères. D’autres facturent explicitement la
+            création ou la durée de vie du cache, parce que garder des états KV disponibles consomme de la mémoire ou
+            du stockage proche des GPU.
+          </p>
+        </div>
+
+        <div class="pricing-model" aria-label="Modele mental du prix du cache">
+          <div class="price-lane">
+            <span class="lane-label">Écriture</span>
+            <strong>Premier passage</strong>
+            <p>Le préfixe est traité, puis une entrée de cache peut être créée.</p>
+          </div>
+          <div class="price-arrow" aria-hidden="true">→</div>
+          <div class="price-lane read-lane">
+            <span class="lane-label">Lecture</span>
+            <strong>Appels suivants</strong>
+            <p>Le même préfixe est reconnu. Les tokens lus depuis le cache sont facturés à part.</p>
+          </div>
+        </div>
+
+        <div class="provider-grid" aria-label="Comparaison des politiques de prix par fournisseur">
+          <article class="provider-card openai-card">
+            <div class="provider-topline">
+              <span class="provider-name">OpenAI</span>
+              <span class="policy-badge">automatique</span>
+            </div>
+            <h3>Pas de surcharge d’écriture explicite</h3>
+            <p>
+              Le cache s’active automatiquement sur les prompts assez longs. Le premier passage reste de l’input
+              normal ; les hits de cache reçoivent une réduction sur les tokens d’entrée cachés, sans frais séparés
+              pour écrire dans le cache.
+            </p>
+            <dl class="policy-list">
+              <div>
+                <dt>Écriture</dt>
+                <dd>prix input normal, pas de frais de cache dédiés</dd>
+              </div>
+              <div>
+                <dt>Lecture</dt>
+                <dd>input caché moins cher, réduction variable selon le modèle</dd>
+              </div>
+              <div>
+                <dt>Signal</dt>
+                <dd><code>cached_tokens</code></dd>
+              </div>
+            </dl>
+          </article>
+
+          <article class="provider-card anthropic-card">
+            <div class="provider-topline">
+              <span class="provider-name">Anthropic Claude</span>
+              <span class="policy-badge paid-write">écriture premium</span>
+            </div>
+            <h3>Le cache coûte plus cher à créer, beaucoup moins cher à relire</h3>
+            <p>
+              Claude distingue les tokens écrits dans le cache, les tokens lus depuis le cache et les tokens d’entrée
+              ordinaires. La durée de vie choisie change fortement le prix de l’écriture.
+            </p>
+            <dl class="policy-list">
+              <div>
+                <dt>Écriture 5 min</dt>
+                <dd>1,25× le prix input de base</dd>
+              </div>
+              <div>
+                <dt>Écriture 1 h</dt>
+                <dd>2× le prix input de base</dd>
+              </div>
+              <div>
+                <dt>Lecture</dt>
+                <dd>0,1× le prix input de base</dd>
+              </div>
+            </dl>
+          </article>
+
+          <article class="provider-card google-card">
+            <div class="provider-topline">
+              <span class="provider-name">Google Gemini / Vertex AI</span>
+              <span class="policy-badge storage-write">stockage TTL</span>
+            </div>
+            <h3>Le cache explicite ajoute une dimension stockage</h3>
+            <p>
+              Gemini combine cache implicite et cache explicite. Sur Vertex AI, la création est facturée au prix input
+              standard ; le cache explicite ajoute aussi un coût de stockage lié à la durée de vie.
+            </p>
+            <dl class="policy-list">
+              <div>
+                <dt>Écriture</dt>
+                <dd>input normal, puis stockage si cache explicite</dd>
+              </div>
+              <div>
+                <dt>Lecture</dt>
+                <dd>réduction sur les tokens qui référencent le cache</dd>
+              </div>
+              <div>
+                <dt>Signal</dt>
+                <dd><code>usage_metadata</code> ou <code>cachedContentTokenCount</code></dd>
+              </div>
+            </dl>
+          </article>
+        </div>
+
+        <div class="break-even-panel">
+          <div>
+            <p class="eyebrow">Question de rentabilité</p>
+            <h3>Combien de lectures faut-il pour amortir l’écriture ?</h3>
+          </div>
+          <div class="formula-grid">
+            <p>
+              Si <strong>C</strong> est le coût input normal du préfixe, une lecture à <strong>0,1C</strong> économise
+              <strong>0,9C</strong> par rapport à une relecture fraîche.
+            </p>
+            <p>
+              Une écriture premium à <strong>1,25C</strong> s’amortit dès un hit. Une écriture à <strong>2C</strong>
+              demande plutôt deux hits. Avec du stockage TTL, ajoute le coût de stockage avant de décider.
+            </p>
+          </div>
+        </div>
+
+        <div class="chapter-demo" data-conversation-demo data-demo-state="one">
+          <div class="chapter-demo-header">
+            <div>
+              <span>Démo conversation</span>
+              <strong>Le même échange n’a pas le même coût selon le fournisseur.</strong>
+            </div>
+            <div class="chat-step-controls" role="group" aria-label="Choisir le tour de la demo prix">
+              <button class="chat-step-button is-active" type="button" data-demo-step="one" aria-pressed="true">
+                Tour 1
+              </button>
+              <button class="chat-step-button" type="button" data-demo-step="two" aria-pressed="false">
+                Tour 2
+              </button>
+            </div>
+          </div>
+          <div class="demo-panels" aria-live="polite">
+            <article class="demo-panel" data-demo-panel="one">
+              <div class="demo-prompt-entry">
+                <span>L’utilisateur saisit</span>
+                <p>« Analyse ce gros contexte de dépôt avant de répondre. »</p>
+              </div>
+              <div class="demo-response">
+                <span>L’IA répond</span>
+                <p>« Le fournisseur traite le préfixe et peut facturer l’écriture du cache selon sa politique. »</p>
+              </div>
+              <div class="demo-cache-grid">
+                <span class="demo-token write">Préfixe <em>écrit</em></span>
+                <span class="demo-token fresh">Input normal <em>facturé</em></span>
+                <span class="demo-token write">TTL éventuel <em>stocké</em></span>
+                <span class="demo-token fresh">Sortie <em>standard</em></span>
+              </div>
+            </article>
+            <article class="demo-panel" data-demo-panel="two" hidden>
+              <div class="demo-prompt-entry">
+                <span>L’utilisateur continue</span>
+                <p>« Reprends le même contexte et compare cette nouvelle erreur. »</p>
+              </div>
+              <div class="demo-response">
+                <span>L’IA répond</span>
+                <p>« Les tokens lus depuis le cache sont comptés séparément des tokens frais et de la sortie. »</p>
+              </div>
+              <div class="demo-cache-grid">
+                <span class="demo-token read">Préfixe <em>cache</em></span>
+                <span class="demo-token read">Lecture <em>réduite</em></span>
+                <span class="demo-token fresh">Nouvelle erreur <em>frais</em></span>
+                <span class="demo-token fresh">Sortie <em>standard</em></span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="simulator" class="story-section simulator-section" data-section="simulator">
+        <div class="section-copy narrow">
+          <p class="eyebrow">6 · Bac à sable</p>
+          <h2>Déplace le changement dans le prompt.</h2>
+          <p>
+            Ce simulateur ne reproduit pas la grille tarifaire d’un fournisseur. Il montre le principe : plus le
+            préfixe identique est long, plus la part relue normalement diminue.
+          </p>
+        </div>
+
+        <div class="simulator" aria-label="Simulateur de cache de prompt">
+          <div class="sim-controls">
+            <label class="control">
+              <span>Contexte stable envoyé à chaque tour</span>
+              <output data-prefix-output for="prefix-size">48k tokens</output>
+              <input id="prefix-size" data-prefix-size type="range" min="8" max="128" step="8" value="48" />
+            </label>
+
+            <label class="control">
+              <span>Nouveau suffixe à chaque tour</span>
+              <output data-tail-output for="tail-size">8k tokens</output>
+              <input id="tail-size" data-tail-size type="range" min="1" max="32" step="1" value="8" />
+            </label>
+
+            <label class="control">
+              <span>Position du premier changement</span>
+              <output data-change-output for="change-position">après 78%</output>
+              <input id="change-position" data-change-position type="range" min="0" max="100" step="1" value="78" />
+            </label>
+
+            <label class="toggle-control">
+              <input data-stable-tools type="checkbox" checked />
+              <span>Schémas d’outils stables entre les tours</span>
+            </label>
+          </div>
+
+          <div class="sim-output">
+            <div class="sim-meter" aria-label="Part du prompt cachee ou relue">
+              <span class="meter-hit" data-meter-hit></span>
+              <span class="meter-miss" data-meter-miss></span>
+            </div>
+            <div class="metric-grid">
+              <div class="metric">
+                <span>Tokens repris du cache</span>
+                <strong data-cached-tokens>37k</strong>
+              </div>
+              <div class="metric">
+                <span>Tokens relus normalement</span>
+                <strong data-uncached-tokens>19k</strong>
+              </div>
+              <div class="metric">
+                <span>Travail d’entrée relatif</span>
+                <strong data-work-index>47%</strong>
+              </div>
+            </div>
+            <p class="sim-note" data-sim-note>
+              Le changement arrive tard : la majeure partie de la base stable peut être réutilisée.
+            </p>
+          </div>
+        </div>
+
+        <div class="chapter-demo" data-conversation-demo data-demo-state="one">
+          <div class="chapter-demo-header">
+            <div>
+              <span>Démo conversation</span>
+              <strong>Le bac à sable reprend la même intuition sur un cas concret.</strong>
+            </div>
+            <div class="chat-step-controls" role="group" aria-label="Choisir le tour de la demo simulateur">
+              <button class="chat-step-button is-active" type="button" data-demo-step="one" aria-pressed="true">
+                Tour 1
+              </button>
+              <button class="chat-step-button" type="button" data-demo-step="two" aria-pressed="false">
+                Tour 2
+              </button>
+            </div>
+          </div>
+          <div class="demo-panels" aria-live="polite">
+            <article class="demo-panel" data-demo-panel="one">
+              <div class="demo-prompt-entry">
+                <span>L’utilisateur saisit</span>
+                <p>« Voici 48k tokens de contexte stable. Trouve le bon fichier. »</p>
+              </div>
+              <div class="demo-response">
+                <span>L’IA répond</span>
+                <p>« Je traite le contexte long une première fois : le simulateur affiche surtout du travail frais. »</p>
+              </div>
+              <div class="demo-cache-grid">
+                <span class="demo-token write">48k contexte <em>écrit</em></span>
+                <span class="demo-token fresh">8k suffixe <em>frais</em></span>
+                <span class="demo-token fresh">Recherche <em>générée</em></span>
+                <span class="demo-token fresh">Réponse <em>standard</em></span>
+              </div>
+            </article>
+            <article class="demo-panel" data-demo-panel="two" hidden>
+              <div class="demo-prompt-entry">
+                <span>L’utilisateur continue</span>
+                <p>« Même contexte, nouvelle erreur : calcule l’impact si le changement arrive tard. »</p>
+              </div>
+              <div class="demo-response">
+                <span>L’IA répond</span>
+                <p>« Le contexte stable est repris ; le curseur “position du changement” contrôle ce qui reste frais. »</p>
+              </div>
+              <div class="demo-cache-grid">
+                <span class="demo-token read">Préfixe long <em>cache</em></span>
+                <span class="demo-token read">Outils stables <em>cache</em></span>
+                <span class="demo-token fresh">Suffixe <em>frais</em></span>
+                <span class="demo-token fresh">Calcul <em>local</em></span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="recap" class="story-section recap-section" data-section="recap">
+        <div class="recap-layout">
+          <div>
+            <p class="eyebrow">Règle de poche</p>
+            <h2>Pour un agent de code, le cache récompense la stabilité du préfixe.</h2>
+          </div>
+          <ol class="recap-list">
+            <li>Garde les instructions, outils et règles du dépôt dans un ordre déterministe.</li>
+            <li>Ajoute les informations nouvelles à la fin plutôt que de réécrire le début.</li>
+            <li>Ne confonds pas cache et mémoire : le modèle ne « se souvient » pas, l’endpoint réutilise un calcul.</li>
+            <li>Mesure toujours sur ton fournisseur : TTL, seuils et réductions varient.</li>
+          </ol>
+        </div>
+        <div class="source-strip" aria-label="Sources consultees">
+          <span>Sources consultées</span>
+          <a href="https://platform.openai.com/docs/guides/prompt-caching">OpenAI</a>
+          <a href="https://platform.claude.com/docs/en/build-with-claude/prompt-caching">Anthropic</a>
+          <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/context-cache/context-cache-overview"
+            >Vertex AI</a
+          >
+          <a href="https://ai.google.dev/gemini-api/docs/caching">Gemini API</a>
+          <a href="https://sankalp.bearblog.dev/how-prompt-caching-works/">Sankalp</a>
+          <a href="https://www.digitalocean.com/community/tutorials/prompt-caching-explained">DigitalOcean</a>
+          <a href="https://www.ibm.com/think/topics/prompt-caching">IBM</a>
+        </div>
+      </section>
+    </main>
+
+    <noscript>
+      <p class="noscript">
+        La page reste lisible sans JavaScript. Active JavaScript pour voir la barre de progression et le simulateur.
+      </p>
+    </noscript>
+
+    <script src="./script.js?v=20260519-dialogue" defer></script>
+  </body>
+</html>
