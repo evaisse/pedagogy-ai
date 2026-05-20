@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent Client Protocol et Agent Host Protocol</title>
+    <meta
+      name="description"
+      content="Mini-site pedagogique en francais sur Agent Client Protocol, Agent Host Protocol et la confusion avec Agent Communication Protocol."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23f7f5ef'/%3E%3Cpath d='M16 18h12v12H16zM36 18h12v12H36zM26 36h12v12H26z' fill='%231d6ea4'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="../../reset.css?v=20260519" />
+    <link rel="stylesheet" href="./styles.css?v=20260520" />
+    <script src="./script.js?v=20260520" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Aller au contenu</a>
+    <div class="scroll-progress" aria-hidden="true">
+      <span data-progress-fill></span>
+    </div>
+
+    <header class="site-header" aria-label="Navigation de la page">
+      <a class="brand" href="#top" aria-label="Retour au debut">
+        <span class="brand-mark" aria-hidden="true">∷</span>
+        Protocoles agents
+      </a>
+      <nav class="story-nav" aria-label="Chapitres">
+        <a href="#map" data-nav-link="map">Carte</a>
+        <a href="#acp" data-nav-link="acp">ACP</a>
+        <a href="#ahp" data-nav-link="ahp">AHP</a>
+        <a href="#compose" data-nav-link="compose">Ensemble</a>
+        <a href="#naming" data-nav-link="naming">Acronymes</a>
+        <a href="#sandbox" data-nav-link="sandbox">Choisir</a>
+      </nav>
+    </header>
+
+    <main id="content">
+      <section id="top" class="hero story-section" data-section="top">
+        <div class="hero-copy">
+          <p class="eyebrow">Agents de code + interfaces</p>
+          <h1>ACP connecte l’éditeur à l’agent. AHP synchronise la session entre clients.</h1>
+          <p class="lead">
+            Ces deux protocoles ne résolvent pas la même frontière. L’un décrit le dialogue 1:1 avec un agent de code.
+            L’autre décrit comment un hôte partage un état de session cohérent avec plusieurs interfaces.
+          </p>
+          <div class="hero-actions" aria-label="Actions rapides">
+            <a class="button primary" href="#map">Voir la carte</a>
+            <a class="button secondary" href="#sandbox">Tester un cas</a>
+          </div>
+        </div>
+
+        <div class="hero-visual" data-protocol-demo>
+          <div class="protocol-controls" role="group" aria-label="Choisir la frontiere expliquee">
+            <button class="protocol-button is-active" type="button" data-protocol-option="acp" aria-pressed="true">
+              Éditeur ↔ agent
+            </button>
+            <button class="protocol-button" type="button" data-protocol-option="ahp" aria-pressed="false">
+              Hôte ↔ clients
+            </button>
+            <button class="protocol-button" type="button" data-protocol-option="agent" aria-pressed="false">
+              Agent ↔ agent
+            </button>
+          </div>
+
+          <div class="protocol-stage" aria-live="polite">
+            <div class="actor-card" data-protocol-left>
+              <span>Client</span>
+              <strong>Éditeur</strong>
+            </div>
+            <div class="wire-card" data-protocol-wire>
+              <span>Agent Client Protocol</span>
+              <strong>JSON-RPC, sessions, prompts, permissions</strong>
+            </div>
+            <div class="actor-card" data-protocol-right>
+              <span>Backend</span>
+              <strong>Agent de code</strong>
+            </div>
+          </div>
+
+          <p class="protocol-explanation" data-protocol-copy>
+            ACP standardise le fil entre un éditeur ou une UI et un agent de code : initialisation, session, prompt,
+            mises à jour en streaming, outils, fichiers, terminal et permissions.
+          </p>
+
+          <div class="protocol-pill-row" aria-label="Roles de la frontiere active">
+            <span class="role-pill strong" data-protocol-tag-one>1 client</span>
+            <span class="role-pill" data-protocol-tag-two>1 agent</span>
+            <span class="role-pill" data-protocol-tag-three>Conversation point à point</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="map" class="story-section split-section" data-section="map">
+        <div class="section-copy">
+          <p class="eyebrow">1 · Carte mentale</p>
+          <h2>Commence par demander : quelle frontière veux-tu rendre stable ?</h2>
+          <p>
+            Dans un produit agentique, plusieurs frontières se ressemblent : l’éditeur parle à l’agent, plusieurs
+            clients observent la même session, et parfois des agents indépendants se parlent entre eux.
+          </p>
+          <p>
+            La confusion vient souvent du mot « protocole ». Ici, chaque protocole rend une couture différente
+            prévisible, testable et interchangeable.
+          </p>
+        </div>
+
+        <div class="sticky-visual boundary-visual" aria-label="Carte des frontieres protocolaires">
+          <article class="boundary-row is-emphasized">
+            <span class="boundary-icon">1</span>
+            <div>
+              <h3>Éditeur ou UI ↔ agent de code</h3>
+              <p>ACP décrit les tours de prompt, les updates, les outils, les permissions et les fichiers.</p>
+            </div>
+            <strong>Agent Client Protocol</strong>
+          </article>
+          <article class="boundary-row">
+            <span class="boundary-icon">N</span>
+            <div>
+              <h3>Hôte de sessions ↔ plusieurs clients</h3>
+              <p>AHP garde une vue synchronisée avec des canaux, des actions ordonnées et un état autoritaire.</p>
+            </div>
+            <strong>Agent Host Protocol</strong>
+          </article>
+          <article class="boundary-row warning-row">
+            <span class="boundary-icon">A</span>
+            <div>
+              <h3>Agent indépendant ↔ agent indépendant</h3>
+              <p>L’article IBM parle d’un autre ACP : Agent Communication Protocol, orienté agent-à-agent.</p>
+            </div>
+            <strong>ACP IBM</strong>
+          </article>
+        </div>
+      </section>
+
+      <section id="acp" class="story-section split-section reverse" data-section="acp">
+        <div class="section-copy">
+          <p class="eyebrow">2 · Agent Client Protocol</p>
+          <h2>ACP donne un langage commun à l’éditeur et à l’agent.</h2>
+          <p>
+            Agent Client Protocol standardise la communication entre les éditeurs de code, les IDEs ou autres clients,
+            et les agents de code. Localement, l’agent peut tourner comme sous-processus et parler en JSON-RPC sur
+            stdio ; les scénarios distants passent par HTTP ou WebSocket.
+          </p>
+          <p>
+            Le point important : ACP ne synchronise pas plusieurs clients. Il décrit surtout la conversation directe
+            qui permet à un utilisateur, via son éditeur, de piloter un agent.
+          </p>
+          <p>
+            Le dépôt officiel distingue la version des artefacts et la compatibilité réseau : le protocole stable est
+            négocié via <code>protocolVersion</code> pendant <code>initialize</code>, puis les capacités annoncées
+            disent quelles méthodes optionnelles sont disponibles.
+          </p>
+        </div>
+
+        <div class="sticky-visual lifecycle-visual" data-acp-flow>
+          <div class="visual-heading">
+            <span>Cycle ACP typique</span>
+            <strong data-acp-title>initialize</strong>
+          </div>
+
+          <div class="step-controls" role="group" aria-label="Etapes du cycle Agent Client Protocol">
+            <button class="step-button is-active" type="button" data-acp-step="initialize" aria-pressed="true">
+              Init
+            </button>
+            <button class="step-button" type="button" data-acp-step="session" aria-pressed="false">Session</button>
+            <button class="step-button" type="button" data-acp-step="prompt" aria-pressed="false">Prompt</button>
+            <button class="step-button" type="button" data-acp-step="updates" aria-pressed="false">Updates</button>
+            <button class="step-button" type="button" data-acp-step="permission" aria-pressed="false">
+              Permission
+            </button>
+            <button class="step-button" type="button" data-acp-step="stop" aria-pressed="false">Stop</button>
+          </div>
+
+          <div class="wire-flow" aria-hidden="true">
+            <span class="wire-node">Client</span>
+            <span class="wire-arrow" data-acp-arrow>→</span>
+            <span class="wire-node">Agent</span>
+          </div>
+
+          <p class="step-copy" data-acp-copy>
+            Le client appelle <code>initialize</code> pour négocier la version du protocole et les capacités
+            disponibles.
+          </p>
+          <pre class="code-panel" aria-label="Message JSON-RPC simplifie"><code data-acp-code>{
+  "method": "initialize",
+  "params": { "protocolVersion": 1 }
+}</code></pre>
+        </div>
+      </section>
+
+      <section id="ahp" class="story-section split-section" data-section="ahp">
+        <div class="section-copy">
+          <p class="eyebrow">3 · Agent Host Protocol</p>
+          <h2>AHP ajoute une autorité de session entre plusieurs clients.</h2>
+          <p>
+            Agent Host Protocol définit comment un serveur de sessions autonome communique avec ses clients. Plusieurs
+            interfaces peuvent se connecter et voir la même session agentique sans inventer leur propre logique de
+            synchronisation.
+          </p>
+          <p>
+            AHP est encore en développement actif. Son modèle repose sur des canaux identifiés par URI, un état
+            immuable par canal, des actions qui passent par des reducers purs, et une réconciliation quand le serveur
+            renvoie l’ordre autoritaire.
+          </p>
+          <p>
+            Les clients vérifient aussi les capacités exposées par l’hôte avant d’utiliser une fonction : le protocole
+            cherche la compatibilité progressive plutôt qu’un couplage rigide entre client et serveur.
+          </p>
+        </div>
+
+        <div class="sticky-visual channel-visual" data-channel-demo>
+          <div class="visual-heading">
+            <span>Explorateur de canaux AHP</span>
+            <strong data-channel-title>Root channel</strong>
+          </div>
+
+          <div class="channel-tabs" role="tablist" aria-label="Canaux Agent Host Protocol">
+            <button class="channel-tab is-active" type="button" data-channel-option="root" aria-pressed="true">
+              root
+            </button>
+            <button class="channel-tab" type="button" data-channel-option="session" aria-pressed="false">
+              session
+            </button>
+            <button class="channel-tab" type="button" data-channel-option="terminal" aria-pressed="false">
+              terminal
+            </button>
+            <button class="channel-tab" type="button" data-channel-option="changeset" aria-pressed="false">
+              changeset
+            </button>
+          </div>
+
+          <div class="channel-board" aria-live="polite">
+            <div class="channel-uri">
+              <span>URI</span>
+              <strong data-channel-uri>ahp-root://</strong>
+            </div>
+            <div class="state-panel">
+              <span>État partagé</span>
+              <p data-channel-state>Agents disponibles, configuration globale, terminaux légers et compteurs.</p>
+            </div>
+            <div class="state-panel accent">
+              <span>Action ou notification</span>
+              <p data-channel-action><code>root/agentsChanged</code> ou <code>root/sessionAdded</code></p>
+            </div>
+          </div>
+
+          <div class="sync-strip" aria-label="Synchronisation multi-client">
+            <span>Client A</span>
+            <i></i>
+            <span>Serveur AHP</span>
+            <i></i>
+            <span>Client B</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="compose" class="story-section split-section reverse" data-section="compose">
+        <div class="section-copy">
+          <p class="eyebrow">4 · Ensemble</p>
+          <h2>AHP peut envelopper ACP quand plusieurs clients partagent un agent.</h2>
+          <p>
+            Le modèle Microsoft décrit AHP comme une couche de coordination et ACP comme une couche de communication.
+            L’hôte parle AHP vers les clients, puis traduit les tours vers ACP pour parler à l’agent.
+          </p>
+          <p>
+            Cette séparation évite de faire porter à ACP des problèmes multi-clients : arbitrage d’un tour en cours,
+            résolution d’une permission depuis une autre interface, annulation, replay et réconciliation.
+          </p>
+        </div>
+
+        <div class="sticky-visual composition-visual" aria-label="Composition AHP et ACP">
+          <div class="client-stack">
+            <span>IDE</span>
+            <span>Web app</span>
+            <span>CLI</span>
+          </div>
+          <div class="bridge-lane">
+            <span class="protocol-label ahp-label">AHP</span>
+            <strong>Hôte de sessions</strong>
+            <p>État autoritaire, actions ordonnées, abonnements, réconciliation.</p>
+            <span class="protocol-label acp-label">ACP</span>
+          </div>
+          <div class="agent-stack">
+            <span>Agent de code</span>
+            <span>Modèle + outils</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="naming" class="story-section split-section" data-section="naming">
+        <div class="section-copy">
+          <p class="eyebrow">5 · Piège d’acronyme</p>
+          <h2>ACP peut désigner deux choses différentes.</h2>
+          <p>
+            Dans la documentation Agent Client Protocol, ACP signifie « Agent Client Protocol » : éditeur ou client vers
+            agent de code. Dans l’article IBM, ACP signifie « Agent Communication Protocol » : communication entre
+            agents indépendants.
+          </p>
+          <p>
+            Les deux sujets appartiennent à l’écosystème des agents, mais ils n’ont pas la même topologie. Quand tu lis
+            « ACP », vérifie toujours les deux mots après le A.
+          </p>
+          <p>
+            Dans l’article IBM, l’Agent Communication Protocol est pensé pour des agents indépendants, avec une approche
+            REST/HTTP, de la découverte et des échanges synchrones ou asynchrones. Ce n’est pas le protocole qui relie
+            un éditeur à un agent de code.
+          </p>
+        </div>
+
+        <div class="sticky-visual naming-visual" aria-label="Comparaison des acronymes ACP">
+          <table>
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Frontière</th>
+                <th>Question utile</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Agent Client Protocol</td>
+                <td>Client ↔ agent de code</td>
+                <td>Comment un éditeur pilote-t-il un agent ?</td>
+              </tr>
+              <tr>
+                <td>Agent Host Protocol</td>
+                <td>Hôte ↔ clients</td>
+                <td>Comment plusieurs UIs partagent-elles une session ?</td>
+              </tr>
+              <tr>
+                <td>Agent Communication Protocol</td>
+                <td>Agent ↔ agent</td>
+                <td>Comment des agents indépendants collaborent-ils ?</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="sandbox" class="story-section sandbox-section" data-section="sandbox">
+        <div class="section-copy wide-copy">
+          <p class="eyebrow">6 · Choisir</p>
+          <h2>Teste le besoin, pas l’acronyme.</h2>
+          <p>
+            Sélectionne un scénario : le panneau met en avant le protocole le plus naturel et ce qu’il doit garantir.
+          </p>
+        </div>
+
+        <div class="scenario-sandbox" data-scenario-demo>
+          <div class="scenario-controls" role="group" aria-label="Choisir un scenario">
+            <button class="scenario-button is-active" type="button" data-scenario-option="editor" aria-pressed="true">
+              Intégrer un agent dans un IDE
+            </button>
+            <button class="scenario-button" type="button" data-scenario-option="multi" aria-pressed="false">
+              Ouvrir la même session sur web + desktop
+            </button>
+            <button class="scenario-button" type="button" data-scenario-option="peers" aria-pressed="false">
+              Faire collaborer deux agents métier
+            </button>
+          </div>
+
+          <div class="scenario-result" aria-live="polite">
+            <div>
+              <span class="result-kicker">Protocole principal</span>
+              <strong data-scenario-title>Agent Client Protocol</strong>
+            </div>
+            <p data-scenario-copy>
+              L’IDE doit lancer ou joindre un agent, créer une session, envoyer des prompts, afficher les updates et
+              demander les permissions de fichiers ou de terminal.
+            </p>
+            <div class="requirement-grid" aria-label="Garanties attendues">
+              <span data-scenario-one>Capacités négociées</span>
+              <span data-scenario-two>Tour de prompt traçable</span>
+              <span data-scenario-three>Autorisations côté client</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="page-footer">
+        <div>
+          <p class="eyebrow">Sources</p>
+          <ul>
+            <li>
+              <a href="https://agentclientprotocol.com/get-started/introduction">Agent Client Protocol · Introduction</a>
+            </li>
+            <li>
+              <a href="https://github.com/agentclientprotocol/agent-client-protocol">
+                agentclientprotocol/agent-client-protocol
+              </a>
+            </li>
+            <li>
+              <a href="https://microsoft.github.io/agent-host-protocol/">Agent Host Protocol · Microsoft</a>
+            </li>
+            <li>
+              <a href="https://www.ibm.com/fr-fr/think/topics/agent-communication-protocol">
+                IBM · Agent Communication Protocol
+              </a>
+            </li>
+          </ul>
+        </div>
+        <a class="button secondary" href="../../">Retour à l’index</a>
+      </footer>
+    </main>
+  </body>
+</html>
