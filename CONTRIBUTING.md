@@ -35,6 +35,34 @@ When adding a new mini-site:
 - Build interactions that explain state changes, comparisons, sequences, or tradeoffs.
 - Respect `prefers-reduced-motion` when using animation.
 
+## Adding or Updating Shared Components
+
+Place reusable visualization components under:
+
+```text
+public/_components/<component-name>/
+```
+
+Use this baseline shape:
+
+```text
+<component-name>.js
+<component-name>.html
+<component-name>.css
+assets/
+```
+
+Component files should stay framework-free and use standard browser APIs:
+
+- Load the component from pages with `<script type="module" src="../../_components/<component-name>/<component-name>.js"></script>`.
+- Use a custom element name that contains a dash, for example `<token-flow>`.
+- Use Shadow DOM for component isolation.
+- Use `adoptedStyleSheets` for scoped CSS when browser support is acceptable.
+- Use attributes for small string configuration.
+- Use JavaScript properties for richer structured data.
+- Use `CustomEvent` for outgoing interactions.
+- Add or update examples in `public/_components/index.html`.
+
 ## Quality Checklist
 
 Before committing:
@@ -43,6 +71,12 @@ Before committing:
 
 ```bash
 node --check public/<topic-slug>/<locale>/script.js
+```
+
+For component modules, also check the module entrypoint:
+
+```bash
+node --input-type=module --check < public/_components/<component-name>/<component-name>.js
 ```
 
 - Serve the site locally:
