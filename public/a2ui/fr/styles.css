@@ -275,6 +275,16 @@ h3 {
   font-size: 1.03rem;
 }
 
+.section-copy concept-callout {
+  margin-top: 18px;
+}
+
+.section-copy.narrow concept-callout {
+  margin-right: auto;
+  margin-left: auto;
+  text-align: left;
+}
+
 .hero-actions,
 .demo-actions {
   display: flex;
@@ -1038,6 +1048,42 @@ source-list:not(:defined) a {
 source-list:not(:defined) a:hover {
   border-color: var(--line-strong);
   color: var(--teal);
+}
+
+concept-callout {
+  --concept-callout-surface: var(--paper-strong);
+  --concept-callout-paper: var(--paper);
+  --concept-callout-ink: var(--ink);
+  --concept-callout-muted: var(--muted);
+  --concept-callout-line: var(--line);
+  --concept-callout-accent: var(--teal);
+  --concept-callout-accent-soft: var(--teal-soft);
+}
+
+concept-callout:not(:defined) {
+  display: block;
+  margin-top: 18px;
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--teal);
+  border-radius: 8px;
+  background: var(--paper-strong);
+  color: var(--muted);
+}
+
+concept-callout:not(:defined)::before {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--teal);
+  content: attr(kicker);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+concept-callout:not(:defined) p {
+  margin: 0;
 }
 
 .a2ui-widget {

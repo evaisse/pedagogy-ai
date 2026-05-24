@@ -14,6 +14,7 @@
     />
     <link rel="stylesheet" href="../reset.css?v=20260519" />
     <link rel="stylesheet" href="./index.css" />
+    <script type="module" src="./concept-callout/concept-callout.js"></script>
     <script type="module" src="./source-list/source-list.js"></script>
     <script type="module" src="./token-flow/token-flow.js"></script>
     <script type="module" src="./openai-endpoint-settings/openai-endpoint-settings.js"></script>
@@ -28,6 +29,7 @@
         Components
       </a>
       <nav class="page-nav" aria-label="Sections">
+        <a href="#concept-callout">concept-callout</a>
         <a href="#token-flow">token-flow</a>
         <a href="#source-list">source-list</a>
         <a href="#openai-endpoint-settings">endpoint-settings</a>
@@ -46,6 +48,48 @@
         </p>
         <pre class="import-snippet"><code>&lt;script type="module" src="../../_components/token-flow/token-flow.js"&gt;&lt;/script&gt;
 &lt;token-flow&gt;&lt;/token-flow&gt;</code></pre>
+      </section>
+
+      <section id="concept-callout" class="component-section" aria-labelledby="concept-callout-title">
+        <div class="section-heading">
+          <p class="eyebrow">Available component</p>
+          <h2 id="concept-callout-title">concept-callout</h2>
+          <p>
+            A small typographic callout for inline examples, notes, and recurring story threads inside explanatory pages.
+          </p>
+        </div>
+
+        <div class="example-grid">
+          <article class="example-panel">
+            <div class="example-heading">
+              <span>Story thread</span>
+              <code>&lt;concept-callout&gt;</code>
+            </div>
+            <concept-callout
+              variant="story"
+              theme="theater"
+              step="1"
+              total="3"
+              title="Mina receives stage directions, not a finished show"
+              summary="The story can reappear later with the same character, compact index, and visual tone."
+            >
+              <p>The metaphor stays separate from the main explanation while still following its chapter order.</p>
+            </concept-callout>
+          </article>
+
+          <article class="example-panel">
+            <div class="example-heading">
+              <span>Inline example</span>
+              <code>slotted copy</code>
+            </div>
+            <concept-callout variant="example" title="Stable idea, concrete instance">
+              <p>
+                A surface is the destination. A flight card, a modal, and a chat side panel can each be separate
+                surfaces with their own component trees.
+              </p>
+            </concept-callout>
+          </article>
+        </div>
       </section>
 
       <section id="token-flow" class="component-section" aria-labelledby="token-flow-title">
@@ -205,6 +249,31 @@
                 <td>Compact explanatory text under the heading.</td>
               </tr>
               <tr>
+                <td>Element</td>
+                <td><code>&lt;concept-callout&gt;</code></td>
+                <td>Renders a compact explanation callout with a default slot for inline examples.</td>
+              </tr>
+              <tr>
+                <td>Attribute</td>
+                <td><code>variant</code></td>
+                <td>Callout tone: <code>example</code>, <code>metaphor</code>, <code>note</code>, or <code>story</code>.</td>
+              </tr>
+              <tr>
+                <td>Attribute</td>
+                <td><code>marker</code></td>
+                <td>Optional short marker rendered in the left badge.</td>
+              </tr>
+              <tr>
+                <td>Attribute</td>
+                <td><code>step</code>, <code>total</code></td>
+                <td>Optional story index rendered in the marker as <code>X/Y</code>.</td>
+              </tr>
+              <tr>
+                <td>Attribute</td>
+                <td><code>theme</code></td>
+                <td>Visual identity for recurring story threads, such as <code>theater</code> or <code>field</code>.</td>
+              </tr>
+              <tr>
                 <td>Property</td>
                 <td><code>data.tokens</code></td>
                 <td>Array of token objects with <code>label</code>, <code>state</code>, and <code>meta</code>.</td>
@@ -264,6 +333,10 @@
   index.html
   index.css
   index.js
+  concept-callout/
+    concept-callout.js
+    concept-callout.html
+    concept-callout.css
   source-list/
     source-list.js
     source-list.html
