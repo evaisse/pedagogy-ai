@@ -4,4 +4,4 @@ PORT ?= 8080
 .PHONY: run
 
 run:
-	npx --yes vite --host $(HOST) --port $(PORT)
+	NODE_USE_ENV_PROXY=1 npx --yes vite --host $(HOST) --port $(PORT)

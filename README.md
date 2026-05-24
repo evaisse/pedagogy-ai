@@ -64,8 +64,8 @@ updating reusable vanilla Web Components for the static mini-sites.
 Copy `.env.dist` to `.env`, or create a local `.env` file when you want to use the OpenAI-backed demos:
 
 ```bash
-OPENAI_API_KEY=sk-...
-OPENAI_BASE_URL=https://your-openai-compatible-endpoint.example/api/v1
+AZURE_OPENAI_API_KEY=sk-...
+AZURE_OPENAI_API_ENDPOINT_COMPATIBLE=https://your-openai-compatible-endpoint.example/api/v1
 OPENAI_DEFAULT_MODEL=gpt-5.5
 ```
 
@@ -92,7 +92,7 @@ make run PORT=8081
 The Vite dev server includes a same-origin OpenAI proxy:
 
 ```text
-/api/v1/<path> -> $OPENAI_BASE_URL/<path>
+/api/v1/<path> -> $AZURE_OPENAI_API_ENDPOINT_COMPATIBLE/<path>
 ```
 
 For example:
@@ -101,15 +101,18 @@ For example:
 /api/v1/chat/completions
 ```
 
-forwards to the configured base URL. With `OPENAI_BASE_URL=https://api.openai.com/v1`, it resolves to:
+forwards to the configured base URL. With `AZURE_OPENAI_API_ENDPOINT_COMPATIBLE=https://api.openai.com/v1`, it resolves to:
 
 ```text
 https://api.openai.com/v1/chat/completions
 ```
 
 The browser calls localhost without an API key. The dev server reads `.env`, injects
-`Authorization: Bearer $OPENAI_API_KEY`, and exposes only the non-secret endpoint metadata to the browser through
+`Authorization: Bearer $AZURE_OPENAI_API_KEY`, and exposes only the non-secret endpoint metadata to the browser through
 `/__openai-settings`.
+
+For Azure OpenAI endpoints, the dev server detects `*.openai.azure.com` or `/openai/deployments/` in
+`AZURE_OPENAI_API_ENDPOINT_COMPATIBLE` and sends the key as `api-key: $AZURE_OPENAI_API_KEY` instead of a bearer token.
 
 Keep the proxy bound to `127.0.0.1`; it is a development tool, not an internet-facing proxy.
 

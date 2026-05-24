@@ -20,6 +20,8 @@ const supportedComponents = new Set([
   "TextField",
   "TokenFlow",
 ]);
+const a2uiMessageTypes = ["createSurface", "updateComponents", "updateDataModel", "deleteSurface"];
+const a2uiMessageTypeAliases = new Map(a2uiMessageTypes.map((type) => [type.toLowerCase(), type]));
 
 const streamSteps = {
   create: {
@@ -565,7 +567,6 @@ function ensureSurface(surfaceId, catalogId = basicCatalogId) {
 
 function validateMessages(messages) {
   const errors = [];
-  const messageTypes = ["createSurface", "updateComponents", "updateDataModel", "deleteSurface"];
   let hasRoot = false;
   let componentCount = 0;
 
@@ -574,7 +575,7 @@ function validateMessages(messages) {
   }
 
   messages.forEach((message, messageIndex) => {
-    const keys = messageTypes.filter((key) => key in message);
+    const keys = a2uiMessageTypes.filter((key) => key in message);
 
     if (keys.length !== 1) {
       errors.push(`Message ${messageIndex + 1}: un seul type A2UI est attendu.`);
@@ -1157,22 +1158,108 @@ function renderSample(name = activeSampleName) {
   setStatus("Exemple local rendu sans appel réseau.", "success");
 }
 
+function getA2UIMessageType(value) {
+  const normalizedValue = String(value || "")
+    .replace(/[^a-z0-9]/gi, "")
+    .toLowerCase();
+
+  return a2uiMessageTypeAliases.get(normalizedValue) || "";
+}
+
+function getChatMessageText(content) {
+  if (typeof content === "string") {
+    return content;
+  }
+
+  if (Array.isArray(content)) {
+    return content.map((part) => part.text || part.content || "").join("");
+  }
+
+  return "";
+}
+
+function normalizeFlatA2UIMessage(message) {
+  const messageType = getA2UIMessageType(message.type || message.messageType || message.kind);
+
+  if (!messageType) {
+    return message;
+  }
+
+  const payload = message.payload && typeof message.payload === "object" ? clone(message.payload) : {};
+  const ignoredKeys = new Set(["kind", "messageType", "payload", "type", "version"]);
+
+  Object.entries(message).forEach(([key, value]) => {
+    if (!ignoredKeys.has(key)) {
+      payload[key] = clone(value);
+    }
+  });
+
+  return {
+    ...(message.version ? { version: message.version } : {}),
+    [messageType]: payload,
+  };
+}
+
+function normalizeMessageEntry(message) {
+  if (Array.isArray(message)) {
+    return normalizeMessageList(message);
+  }
+
+  if (!message || typeof message !== "object") {
+    return [message];
+  }
+
+  const keys = a2uiMessageTypes.filter((key) => key in message);
+  if (keys.length === 1) {
+    return [message];
+  }
+
+  if ("content" in message && ("role" in message || "type" in message)) {
+    const text = getChatMessageText(message.content);
+
+    if (text.trim()) {
+      try {
+        return parseJsonCandidate(text);
+      } catch {
+        return [message];
+      }
+    }
+
+    if (message.content && typeof message.content === "object") {
+      try {
+        return normalizePayload(message.content);
+      } catch {
+        return [message];
+      }
+    }
+  }
+
+  return [normalizeFlatA2UIMessage(message)];
+}
+
+function normalizeMessageList(messages) {
+  return messages.flatMap((message) => normalizeMessageEntry(message));
+}
+
 function normalizePayload(parsedPayload) {
   if (Array.isArray(parsedPayload)) {
-    return parsedPayload;
+    return normalizeMessageList(parsedPayload);
   }
 
   if (Array.isArray(parsedPayload?.messages)) {
-    return parsedPayload.messages;
+    return normalizeMessageList(parsedPayload.messages);
   }
 
   if (Array.isArray(parsedPayload?.a2ui?.messages)) {
-    return parsedPayload.a2ui.messages;
+    return normalizeMessageList(parsedPayload.a2ui.messages);
   }
 
-  const messageTypes = ["createSurface", "updateComponents", "updateDataModel", "deleteSurface"];
-  if (parsedPayload && messageTypes.some((key) => key in parsedPayload)) {
-    return [parsedPayload];
+  if (parsedPayload && typeof parsedPayload === "object") {
+    const normalizedMessages = normalizeMessageEntry(parsedPayload);
+
+    if (normalizedMessages.some((message) => a2uiMessageTypes.some((key) => key in message))) {
+      return normalizedMessages;
+    }
   }
 
   throw new Error('La réponse JSON doit contenir une propriété "messages".');
@@ -1262,6 +1349,8 @@ function buildGenerationPrompt(userPrompt) {
     "Règles obligatoires :",
     "- Le premier message crée surfaceId \"demo\" avec createSurface.",
     "- updateComponents doit contenir un composant {\"id\":\"root\", ...}.",
+    "- Chaque item de messages doit avoir exactement une commande A2UI : createSurface, updateDataModel, updateComponents ou deleteSurface.",
+    "- N’utilise pas de champ type/messageType/kind pour représenter la commande A2UI.",
     "- Utilise seulement ces composants : Text, Icon, Image, Divider, Row, Column, List, Card, Tabs, Button, TextField, CheckBox, Slider, ChoicePicker, DateTimeInput, TokenFlow, SourceList.",
     "- Utilise le format v0.9 : {\"id\":\"title\",\"component\":\"Text\",\"text\":\"...\",\"variant\":\"h2\"}.",
     "- Les containers référencent leurs enfants par IDs : children, child ou tabItems.",
@@ -1269,6 +1358,7 @@ function buildGenerationPrompt(userPrompt) {
     "- Ne dépasse pas 24 composants.",
     "- Si tu utilises TokenFlow, fournis kicker, title, summary et tokens avec label, state cached/write/fresh/miss, meta.",
     "- Si tu utilises SourceList, fournis kicker, title, summary et sources avec href, label, description, meta.",
+    "Exemple de structure valide : {\"messages\":[{\"version\":\"v0.9\",\"createSurface\":{\"surfaceId\":\"demo\"}},{\"version\":\"v0.9\",\"updateComponents\":{\"surfaceId\":\"demo\",\"components\":[{\"id\":\"root\",\"component\":\"Card\",\"child\":\"title\"},{\"id\":\"title\",\"component\":\"Text\",\"text\":\"Titre\",\"variant\":\"h2\"}]}}]}",
     "",
     `Demande utilisateur : ${userPrompt}`,
   ].join("\n");
