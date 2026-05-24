@@ -7,19 +7,25 @@ const serverSettingsUrl = "/__openai-settings";
 const defaultEndpoint = "/api/v1";
 const defaultModel = "gpt-5.5";
 
-async function loadText(url) {
-  const response = await fetch(url);
+function stripInjectedClientScript(markup) {
+  return markup.replace(/\s*<script\b[^>]*\bsrc=["']\/@vite\/client["'][^>]*>\s*<\/script>\s*/gi, "\n");
+}
+
+async function loadText(url, type = "text") {
+  const accept = type === "stylesheet" ? "text/css,*/*;q=0.1" : "text/html,*/*;q=0.1";
+  const response = await fetch(url, { headers: { Accept: accept } });
 
   if (!response.ok) {
     throw new Error(`Unable to load ${url.pathname}`);
   }
 
-  return response.text();
+  const text = await response.text();
+  return type === "template" ? stripInjectedClientScript(text) : text;
 }
 
 const [templateMarkup, stylesheetText] = await Promise.all([
-  loadText(templateUrl),
-  loadText(stylesheetUrl),
+  loadText(templateUrl, "template"),
+  loadText(stylesheetUrl, "stylesheet"),
 ]);
 
 const template = document.createElement("template");
@@ -213,8 +219,7 @@ class OpenAIEndpointSettings extends HTMLElement {
             { role: "system", content: "Reply with the word ok." },
             { role: "user", content: "connection test" },
           ],
-          max_tokens: 4,
-          temperature: 0,
+          max_completion_tokens: 4,
         }),
         signal: controller.signal,
       });

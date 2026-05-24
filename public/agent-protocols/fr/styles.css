@@ -100,6 +100,29 @@ code {
   backdrop-filter: blur(18px);
 }
 
+.header-start {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.home-link {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper-strong);
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 780;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
@@ -140,7 +163,8 @@ code {
 }
 
 .story-nav a:hover,
-.story-nav a.is-active {
+.story-nav a.is-active,
+.home-link:hover {
   border-color: var(--line);
   background: var(--paper-strong);
   color: var(--ink);
@@ -304,6 +328,7 @@ h3 {
 .channel-tab:focus-visible,
 .scenario-button:focus-visible,
 .button:focus-visible,
+.home-link:focus-visible,
 .story-nav a:focus-visible {
   outline: 3px solid var(--blue);
   outline-offset: 3px;

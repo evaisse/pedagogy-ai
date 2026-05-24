@@ -66,6 +66,7 @@ Copy `.env.dist` to `.env`, or create a local `.env` file when you want to use t
 ```bash
 AZURE_OPENAI_API_KEY=sk-...
 AZURE_OPENAI_API_ENDPOINT_COMPATIBLE=https://your-openai-compatible-endpoint.example/api/v1
+AZURE_OPENAI_API_VERSION=2024-10-21
 OPENAI_DEFAULT_MODEL=gpt-5.5
 ```
 
@@ -112,7 +113,8 @@ The browser calls localhost without an API key. The dev server reads `.env`, inj
 `/__openai-settings`.
 
 For Azure OpenAI endpoints, the dev server detects `*.openai.azure.com` or `/openai/deployments/` in
-`AZURE_OPENAI_API_ENDPOINT_COMPATIBLE` and sends the key as `api-key: $AZURE_OPENAI_API_KEY` instead of a bearer token.
+`AZURE_OPENAI_API_ENDPOINT_COMPATIBLE`, sends the key as `api-key: $AZURE_OPENAI_API_KEY` instead of a bearer token, and
+adds `api-version=$AZURE_OPENAI_API_VERSION` when the endpoint uses `/openai/deployments/...`.
 
 Keep the proxy bound to `127.0.0.1`; it is a development tool, not an internet-facing proxy.
 

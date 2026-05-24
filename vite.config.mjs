@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import net from "node:net";
 import { Readable } from "node:stream";
 
 const root = "public";
@@ -6,6 +7,7 @@ const openAiProxyPrefix = "/api/v1";
 const openAiSettingsPath = "/__openai-settings";
 const defaultOpenAiBaseUrl = "https://api.openai.com/v1";
 const defaultOpenAiModel = "gpt-5.5";
+const defaultAzureOpenAiApiVersion = "2024-10-21";
 const hopByHopHeaders = new Set([
   "connection",
   "content-encoding",
@@ -22,8 +24,55 @@ const hopByHopHeaders = new Set([
 
 loadLocalEnv();
 
-function getServerPort() {
-  return Number(process.env.VITE_PORT || process.env.PORT || 8080);
+function parsePort(value, fallback) {
+  const port = Number(value);
+
+  if (!Number.isInteger(port) || port < 0 || port > 65535) {
+    return fallback;
+  }
+
+  return port;
+}
+
+function getRequestedServerPort() {
+  return parsePort(process.env.VITE_PORT || process.env.PORT || 8080, 8080);
+}
+
+function isPortAvailable(port, host) {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+
+    server.once("error", () => resolve(false));
+    server.once("listening", () => {
+      server.close(() => resolve(true));
+    });
+    server.listen(port, host);
+  });
+}
+
+function getRandomAvailablePort(host) {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
+
+    server.once("error", reject);
+    server.once("listening", () => {
+      const address = server.address();
+      const port = typeof address === "object" && address ? address.port : 0;
+
+      server.close(() => resolve(port));
+    });
+    server.listen(0, host);
+  });
+}
+
+async function getServerPort(host) {
+  const requestedPort = getRequestedServerPort();
+
+  if (requestedPort === 0 || (await isPortAvailable(requestedPort, host))) {
+    return requestedPort;
+  }
+
+  return getRandomAvailablePort(host);
 }
 
 function getOpenAiBaseUrl() {
@@ -38,11 +87,27 @@ function getOpenAiApiKey() {
   return process.env.AZURE_OPENAI_API_KEY || "";
 }
 
+function getAzureOpenAiApiVersion() {
+  return String(process.env.AZURE_OPENAI_API_VERSION || defaultAzureOpenAiApiVersion).trim();
+}
+
+function getOpenAiBaseUrlObject() {
+  return new URL(getOpenAiBaseUrl());
+}
+
+function isAzureOpenAiUrl(url) {
+  return url.hostname.endsWith(".openai.azure.com") || url.pathname.includes("/openai/deployments/");
+}
+
+function usesAzureDeploymentApi(url) {
+  return url.pathname.includes("/openai/deployments/");
+}
+
 function shouldUseAzureApiKeyHeader() {
   try {
-    const baseUrl = new URL(getOpenAiBaseUrl());
+    const baseUrl = getOpenAiBaseUrlObject();
 
-    return baseUrl.hostname.endsWith(".openai.azure.com") || baseUrl.pathname.includes("/openai/deployments/");
+    return isAzureOpenAiUrl(baseUrl);
   } catch {
     return false;
   }
@@ -84,8 +149,19 @@ function parseEnvValue(value) {
 function getOpenAiTargetUrl(requestUrl) {
   const url = new URL(requestUrl, "http://localhost");
   const upstreamPath = url.pathname.slice(openAiProxyPrefix.length);
+  const targetUrl = getOpenAiBaseUrlObject();
 
-  return new URL(`${getOpenAiBaseUrl()}${upstreamPath}${url.search}`);
+  targetUrl.pathname = `${targetUrl.pathname.replace(/\/+$/, "")}${upstreamPath}`;
+
+  for (const [key, value] of url.searchParams) {
+    targetUrl.searchParams.set(key, value);
+  }
+
+  if (usesAzureDeploymentApi(targetUrl) && !targetUrl.searchParams.has("api-version")) {
+    targetUrl.searchParams.set("api-version", getAzureOpenAiApiVersion());
+  }
+
+  return targetUrl;
 }
 
 function formatDuration(startedAt) {
@@ -165,6 +241,7 @@ function openAiProxyPlugin() {
               endpoint: openAiProxyPrefix,
               baseUrl: getOpenAiBaseUrl(),
               model: getOpenAiDefaultModel(),
+              apiVersion: shouldUseAzureApiKeyHeader() ? getAzureOpenAiApiVersion() : "",
               hasApiKey: Boolean(getOpenAiApiKey()),
               authHeader: shouldUseAzureApiKeyHeader() ? "api-key" : "Authorization",
             }),
@@ -261,13 +338,15 @@ function openAiProxyPlugin() {
   };
 }
 
+const serverHost = process.env.VITE_HOST || "127.0.0.1";
+
 export default {
   root,
   publicDir: false,
   plugins: [openAiProxyPlugin()],
   server: {
-    host: process.env.VITE_HOST || "127.0.0.1",
-    port: getServerPort(),
-    strictPort: true,
+    host: serverHost,
+    port: await getServerPort(serverHost),
+    strictPort: false,
   },
 };

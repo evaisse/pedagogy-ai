@@ -372,6 +372,12 @@ const samples = {
                   description: "Exemples publics de widgets et surfaces A2UI.",
                   meta: "AG-UI",
                 },
+                {
+                  href: "https://a2ui-composer.ag-ui.com/theater?scenario=restaurant-finder&step=23",
+                  label: "A2UI Composer Theater",
+                  description: "Player public Restaurant Finder qui rejoue les messages A2UI étape par étape.",
+                  meta: "AG-UI",
+                },
               ],
             },
           ],
@@ -394,14 +400,26 @@ const refs = {
   endpointSettings: document.querySelector("#endpoint-settings"),
   eventLog: document.querySelector("[data-event-log]"),
   jsonOutput: document.querySelector("[data-json-output]"),
+  messageTimeline: document.querySelector("[data-message-timeline]"),
+  playerPlay: document.querySelector("[data-player-play]"),
+  playerReset: document.querySelector("[data-player-reset]"),
+  playerStatus: document.querySelector("[data-player-status]"),
+  playerStep: document.querySelector("[data-player-step]"),
   progressFill: document.querySelector("[data-progress-fill]"),
   renderSample: document.querySelector("[data-render-sample]"),
+  renderPanels: Array.from(document.querySelectorAll("[data-render-panel]")),
+  renderTabs: Array.from(document.querySelectorAll("[data-render-tab]")),
   sendPrompt: document.querySelector("[data-send-prompt]"),
   surface: document.querySelector("[data-a2ui-surface]"),
   surfaceBadge: document.querySelector("[data-surface-badge]"),
 };
 
 let activeSampleName = "flight";
+const playerState = {
+  isPlaying: false,
+  stepIndex: 0,
+  timerId: 0,
+};
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -414,6 +432,245 @@ function formatJson(value) {
 function setStatus(message, tone = "") {
   refs.demoStatus.textContent = message;
   refs.demoStatus.dataset.tone = tone;
+}
+
+function getActiveSample() {
+  return samples[activeSampleName] || samples.flight;
+}
+
+function getA2UICommandName(message) {
+  return a2uiMessageTypes.find((type) => type in message) || "message";
+}
+
+function getMessageTimelineSummary(message) {
+  if (message.createSurface) {
+    return message.createSurface.surfaceId || "surface";
+  }
+
+  if (message.updateDataModel) {
+    return message.updateDataModel.path || "/";
+  }
+
+  if (message.updateComponents) {
+    const count = message.updateComponents.components?.length || 0;
+    return `${count} composant${count > 1 ? "s" : ""}`;
+  }
+
+  if (message.deleteSurface) {
+    return message.deleteSurface.surfaceId || "surface";
+  }
+
+  return "";
+}
+
+function updateScenarioTimeline() {
+  const messages = getActiveSample().messages || [];
+
+  refs.messageTimeline.replaceChildren(
+    ...messages.map((message, index) => {
+      const item = document.createElement("li");
+      const title = document.createElement("strong");
+      const summary = document.createElement("span");
+
+      item.className = "message-timeline-item";
+      item.classList.toggle("is-played", index < playerState.stepIndex);
+      item.classList.toggle("is-active", index === playerState.stepIndex - 1);
+      title.textContent = `${index + 1}. ${getA2UICommandName(message)}`;
+      summary.textContent = getMessageTimelineSummary(message);
+      item.append(title, summary);
+      return item;
+    }),
+  );
+}
+
+function updateScenarioPlayerControls() {
+  const total = getActiveSample().messages.length;
+  const isComplete = playerState.stepIndex >= total;
+
+  refs.playerStatus.textContent = `${Math.min(playerState.stepIndex, total)} / ${total}`;
+  refs.playerPlay.textContent = playerState.isPlaying ? "Pause" : isComplete ? "Rejouer" : "Jouer";
+  refs.playerStep.disabled = playerState.isPlaying || total === 0;
+  refs.playerReset.disabled = playerState.isPlaying || playerState.stepIndex === 0;
+}
+
+function resetRendererSurface(message = "Aucun message joué.") {
+  runtime.surfaces.clear();
+  runtime.activeSurfaceId = "demo";
+  refs.surfaceBadge.textContent = "demo";
+  refs.surface.replaceChildren(createEmptySurface(message));
+  refs.jsonOutput.textContent = formatJson({ messages: [] });
+}
+
+function stopScenarioPlayer() {
+  if (playerState.timerId) {
+    window.clearInterval(playerState.timerId);
+    playerState.timerId = 0;
+  }
+
+  playerState.isPlaying = false;
+  updateScenarioPlayerControls();
+}
+
+function renderScenarioStep(stepIndex) {
+  const messages = getActiveSample().messages || [];
+  const nextStepIndex = Math.max(0, Math.min(stepIndex, messages.length));
+
+  playerState.stepIndex = nextStepIndex;
+  setRenderTab("surface");
+
+  if (nextStepIndex === 0) {
+    resetRendererSurface();
+  } else {
+    applyMessages(clone(messages.slice(0, nextStepIndex)), {
+      requireRoot: nextStepIndex === messages.length,
+    });
+  }
+
+  updateScenarioTimeline();
+  updateScenarioPlayerControls();
+}
+
+function advanceScenarioPlayer() {
+  const total = getActiveSample().messages.length;
+
+  if (playerState.stepIndex >= total) {
+    stopScenarioPlayer();
+    return;
+  }
+
+  renderScenarioStep(playerState.stepIndex + 1);
+
+  if (playerState.stepIndex >= total) {
+    stopScenarioPlayer();
+    setStatus("Scénario A2UI joué jusqu’au bout.", "success");
+  }
+}
+
+function playScenarioPlayer() {
+  if (playerState.isPlaying) {
+    stopScenarioPlayer();
+    setStatus("Lecture du scénario mise en pause.");
+    return;
+  }
+
+  if (playerState.stepIndex >= getActiveSample().messages.length) {
+    renderScenarioStep(0);
+  }
+
+  playerState.isPlaying = true;
+  updateScenarioPlayerControls();
+  setStatus("Lecture progressive des messages A2UI.");
+  advanceScenarioPlayer();
+  playerState.timerId = window.setInterval(advanceScenarioPlayer, 1250);
+}
+
+function stepScenarioPlayer() {
+  stopScenarioPlayer();
+  advanceScenarioPlayer();
+}
+
+function resetScenarioPlayer() {
+  stopScenarioPlayer();
+  renderScenarioStep(0);
+  setStatus("Player réinitialisé.");
+}
+
+function setRenderTab(activeTab = "surface") {
+  refs.renderTabs.forEach((tab) => {
+    const isActive = tab.dataset.renderTab === activeTab;
+    tab.classList.toggle("is-active", isActive);
+    tab.setAttribute("aria-selected", String(isActive));
+    tab.tabIndex = isActive ? 0 : -1;
+  });
+
+  refs.renderPanels.forEach((panel) => {
+    const isActive = panel.dataset.renderPanel === activeTab;
+    panel.classList.toggle("is-active", isActive);
+    panel.setAttribute("aria-hidden", String(!isActive));
+
+    if (isActive) {
+      panel.removeAttribute("hidden");
+      return;
+    }
+
+    panel.setAttribute("hidden", "");
+  });
+}
+
+function activateRenderTabFromEvent(event) {
+  const tab = event.target.closest?.("[data-render-tab]");
+
+  if (!tab) return;
+
+  setRenderTab(tab.dataset.renderTab);
+}
+
+function handleRenderTabClick(event) {
+  const tab = event.target.closest?.("[data-render-tab]");
+
+  if (!tab) return;
+
+  event.preventDefault();
+  setRenderTab(tab.dataset.renderTab);
+}
+
+function handleRenderTabKeydown(event) {
+  const currentTab = event.target.closest?.("[data-render-tab]");
+
+  if (!currentTab) return;
+
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    setRenderTab(currentTab.dataset.renderTab);
+    return;
+  }
+
+  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+
+  event.preventDefault();
+
+  const currentIndex = refs.renderTabs.indexOf(currentTab);
+  const direction = event.key === "ArrowRight" ? 1 : -1;
+  const nextIndex = (currentIndex + direction + refs.renderTabs.length) % refs.renderTabs.length;
+  const nextTab = refs.renderTabs[nextIndex];
+
+  nextTab.focus();
+  setRenderTab(nextTab.dataset.renderTab);
+}
+
+function createRenderLoader() {
+  const loader = document.createElement("div");
+  loader.className = "render-loading";
+  loader.dataset.renderLoading = "true";
+  loader.setAttribute("role", "status");
+  loader.setAttribute("aria-live", "polite");
+
+  const label = document.createElement("span");
+  label.className = "render-loading-label";
+  label.textContent = "Génération en cours";
+
+  const card = document.createElement("div");
+  card.className = "render-loading-card";
+
+  ["wide", "medium", "short"].forEach((width) => {
+    const line = document.createElement("span");
+    line.className = `render-loading-line ${width}`;
+    card.append(line);
+  });
+
+  loader.append(label, card);
+  return loader;
+}
+
+function setRenderLoading(isLoading) {
+  refs.surface.classList.toggle("is-loading", isLoading);
+  refs.surface.setAttribute("aria-busy", String(isLoading));
+  refs.surface.querySelector("[data-render-loading]")?.remove();
+
+  if (isLoading) {
+    setRenderTab("surface");
+    refs.surface.append(createRenderLoader());
+  }
 }
 
 function updateScrollProgress() {
@@ -565,8 +822,9 @@ function ensureSurface(surfaceId, catalogId = basicCatalogId) {
   return runtime.surfaces.get(surfaceId);
 }
 
-function validateMessages(messages) {
+function validateMessages(messages, options = {}) {
   const errors = [];
+  const requireRoot = options.requireRoot ?? true;
   let hasRoot = false;
   let componentCount = 0;
 
@@ -611,7 +869,7 @@ function validateMessages(messages) {
     }
   });
 
-  if (!hasRoot) {
+  if (!hasRoot && requireRoot) {
     errors.push('La surface doit définir un composant avec id "root".');
   }
 
@@ -622,8 +880,8 @@ function validateMessages(messages) {
   return errors;
 }
 
-function applyMessages(messages) {
-  const validationErrors = validateMessages(messages);
+function applyMessages(messages, options = {}) {
+  const validationErrors = validateMessages(messages, options);
 
   if (validationErrors.length > 0) {
     throw new Error(validationErrors.join("\n"));
@@ -1142,8 +1400,12 @@ function appendEventLog(event) {
 }
 
 function setActiveSample(name) {
+  stopScenarioPlayer();
   activeSampleName = samples[name] ? name : "flight";
   refs.demoPrompt.value = samples[activeSampleName].prompt;
+  playerState.stepIndex = 0;
+  updateScenarioTimeline();
+  updateScenarioPlayerControls();
 
   document.querySelectorAll("[data-sample]").forEach((button) => {
     const isActive = button.dataset.sample === activeSampleName;
@@ -1154,7 +1416,11 @@ function setActiveSample(name) {
 
 function renderSample(name = activeSampleName) {
   const sample = samples[name] || samples.flight;
+  stopScenarioPlayer();
+  playerState.stepIndex = sample.messages.length;
   applyMessages(clone(sample.messages));
+  updateScenarioTimeline();
+  updateScenarioPlayerControls();
   setStatus("Exemple local rendu sans appel réseau.", "success");
 }
 
@@ -1390,8 +1656,7 @@ async function requestGeneratedA2UI() {
           content: buildGenerationPrompt(refs.demoPrompt.value),
         },
       ],
-      max_tokens: 1800,
-      temperature: 0.2,
+      max_completion_tokens: 1800,
     }),
   });
 
@@ -1411,14 +1676,23 @@ async function requestGeneratedA2UI() {
 }
 
 function bindDemoEvents() {
+  document.addEventListener("pointerup", activateRenderTabFromEvent, true);
+  document.addEventListener("click", handleRenderTabClick, true);
+  document.addEventListener("keydown", handleRenderTabKeydown, true);
+
   document.querySelectorAll("[data-sample]").forEach((button) => {
     button.addEventListener("click", () => setActiveSample(button.dataset.sample));
   });
 
   refs.renderSample.addEventListener("click", () => renderSample(activeSampleName));
+  refs.playerPlay.addEventListener("click", playScenarioPlayer);
+  refs.playerStep.addEventListener("click", stepScenarioPlayer);
+  refs.playerReset.addEventListener("click", resetScenarioPlayer);
 
   refs.sendPrompt.addEventListener("click", async () => {
+    stopScenarioPlayer();
     refs.sendPrompt.disabled = true;
+    setRenderLoading(true);
     setStatus("Appel du modèle en cours…");
 
     try {
@@ -1429,6 +1703,7 @@ function bindDemoEvents() {
       setStatus(error.message, "error");
     } finally {
       refs.sendPrompt.disabled = false;
+      setRenderLoading(false);
     }
   });
 
@@ -1453,6 +1728,7 @@ function init() {
   });
   setStreamStep("create");
 
+  setRenderTab("surface");
   bindDemoEvents();
   setActiveSample("flight");
   renderSample("flight");

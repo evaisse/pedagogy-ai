@@ -27,13 +27,16 @@ input {
 
 .settings-shell {
   display: flex;
-  gap: 14px;
+  min-height: 48px;
+  gap: 12px;
   align-items: center;
   justify-content: space-between;
-  padding: 12px;
+  padding: 8px 8px 8px 12px;
   border: 1px solid var(--endpoint-line);
   border-radius: 8px;
-  background: var(--endpoint-surface);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 92%), rgb(244 247 251 / 88%)),
+    var(--endpoint-surface);
   color: var(--endpoint-ink);
 }
 
@@ -71,14 +74,29 @@ input {
 .settings-trigger,
 .primary-button {
   border: 1px solid var(--endpoint-accent-strong);
-  background: var(--endpoint-accent);
-  color: white;
   font-weight: 820;
 }
 
 .settings-trigger {
+  display: grid;
   flex: 0 0 auto;
-  padding: 8px 12px;
+  width: 38px;
+  min-width: 38px;
+  padding: 0;
+  place-items: center;
+  background: var(--endpoint-accent-soft);
+  color: var(--endpoint-accent-strong);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.primary-button {
+  background: var(--endpoint-accent);
+  color: white;
+}
+
+.settings-trigger span {
+  transform: translateY(-1px);
 }
 
 .secondary-button,
@@ -93,9 +111,13 @@ input {
   color: var(--endpoint-danger);
 }
 
-.settings-trigger:hover,
 .primary-button:hover {
   background: var(--endpoint-accent-strong);
+}
+
+.settings-trigger:hover {
+  background: var(--endpoint-accent);
+  color: white;
 }
 
 .secondary-button:hover,

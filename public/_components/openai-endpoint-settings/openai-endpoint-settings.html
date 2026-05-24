@@ -3,7 +3,15 @@
     <span class="settings-kicker">Endpoint OpenAI</span>
     <strong data-summary>Non configuré</strong>
   </div>
-  <button class="settings-trigger" type="button" data-open>Configurer</button>
+  <button
+    class="settings-trigger"
+    type="button"
+    data-open
+    aria-label="Configurer l'endpoint OpenAI"
+    title="Configurer l'endpoint OpenAI"
+  >
+    <span aria-hidden="true">⚙</span>
+  </button>
 </section>
 
 <dialog class="settings-dialog" data-dialog>
@@ -18,7 +26,8 @@
 
     <p class="settings-note">
       La clé API reste côté serveur local. Le proxy <code>/api/v1</code> utilise <code>AZURE_OPENAI_API_KEY</code>,
-      <code>AZURE_OPENAI_API_ENDPOINT_COMPATIBLE</code> et <code>OPENAI_DEFAULT_MODEL</code> depuis <code>.env</code>.
+      <code>AZURE_OPENAI_API_ENDPOINT_COMPATIBLE</code>, <code>AZURE_OPENAI_API_VERSION</code> et
+      <code>OPENAI_DEFAULT_MODEL</code> depuis <code>.env</code>.
     </p>
 
     <label class="field">

@@ -13,11 +13,11 @@
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23f4f7fb'/%3E%3Cpath d='M14 18h36v8H14zM14 32h16v14H14zM36 32h14v14H36z' fill='%230b7f68'/%3E%3C/svg%3E"
     />
     <link rel="stylesheet" href="../../reset.css?v=20260519" />
-    <link rel="stylesheet" href="./styles.css?v=20260521" />
+    <link rel="stylesheet" href="./styles.css?v=20260524-json-tab" />
     <script type="module" src="../../_components/openai-endpoint-settings/openai-endpoint-settings.js"></script>
     <script type="module" src="../../_components/source-list/source-list.js"></script>
     <script type="module" src="../../_components/token-flow/token-flow.js"></script>
-    <script src="./script.js?v=20260521" defer></script>
+    <script src="./script.js?v=20260524-json-tab" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#content">Aller au contenu</a>
@@ -26,10 +26,13 @@
     </div>
 
     <header class="site-header" aria-label="Navigation de la page">
-      <a class="brand" href="#top" aria-label="Retour au debut">
-        <span class="brand-mark" aria-hidden="true">A2</span>
-        A2UI
-      </a>
+      <div class="header-start">
+        <a class="home-link" href="../../" aria-label="Retour à l’accueil">Accueil</a>
+        <a class="brand" href="#top" aria-label="Retour au debut">
+          <span class="brand-mark" aria-hidden="true">A2</span>
+          A2UI
+        </a>
+      </div>
       <nav class="story-nav" aria-label="Chapitres">
         <a href="#model" data-nav-link="model">Modèle</a>
         <a href="#stream" data-nav-link="stream">Stream</a>
@@ -257,29 +260,81 @@
               <button class="button primary" type="button" data-send-prompt>Appeler le modèle</button>
             </div>
 
+            <div class="scenario-player" aria-label="Lecteur de messages A2UI">
+              <div class="player-header">
+                <span>Player A2UI</span>
+                <output data-player-status>Scénario complet</output>
+              </div>
+              <div class="player-controls">
+                <button class="copy-button" type="button" data-player-reset>Reset</button>
+                <button class="copy-button" type="button" data-player-step>Étape suivante</button>
+                <button class="button secondary" type="button" data-player-play>Jouer</button>
+              </div>
+              <ol class="message-timeline" data-message-timeline></ol>
+            </div>
+
             <p class="demo-status" data-demo-status role="status" aria-live="polite"></p>
           </section>
 
           <section class="render-panel" aria-labelledby="render-title">
-            <div class="panel-heading inline-heading">
+            <div class="panel-heading inline-heading render-heading">
               <div>
                 <p class="eyebrow">Renderer local</p>
                 <h3 id="render-title">Surface A2UI</h3>
               </div>
-              <span class="surface-badge" data-surface-badge>demo</span>
-            </div>
-            <div class="a2ui-surface" data-a2ui-surface aria-live="polite"></div>
-          </section>
-
-          <section class="json-panel" aria-labelledby="json-title">
-            <div class="panel-heading inline-heading">
-              <div>
-                <p class="eyebrow">Messages</p>
-                <h3 id="json-title">JSON A2UI</h3>
+              <div class="render-heading-actions">
+                <span class="surface-badge" data-surface-badge>demo</span>
+                <div class="render-tabs" role="tablist" aria-label="Vue du renderer">
+                  <button
+                    id="render-tab-surface"
+                    class="render-tab is-active"
+                    type="button"
+                    role="tab"
+                    aria-selected="true"
+                    aria-controls="render-panel-surface"
+                    data-render-tab="surface"
+                  >
+                    Rendu
+                  </button>
+                  <button
+                    id="render-tab-json"
+                    class="render-tab"
+                    type="button"
+                    role="tab"
+                    aria-selected="false"
+                    aria-controls="render-panel-json"
+                    data-render-tab="json"
+                  >
+                    JSON
+                  </button>
+                </div>
               </div>
-              <button class="copy-button" type="button" data-copy-json>Copier</button>
             </div>
-            <pre class="json-output" tabindex="0"><code data-json-output></code></pre>
+
+            <div
+              id="render-panel-surface"
+              class="render-tab-panel is-active"
+              role="tabpanel"
+              aria-labelledby="render-tab-surface"
+              data-render-panel="surface"
+            >
+              <div class="a2ui-surface" data-a2ui-surface aria-live="polite"></div>
+            </div>
+
+            <div
+              id="render-panel-json"
+              class="render-tab-panel"
+              role="tabpanel"
+              aria-labelledby="render-tab-json"
+              data-render-panel="json"
+              hidden
+            >
+              <div class="json-tab-toolbar">
+                <span>Messages A2UI</span>
+                <button class="copy-button" type="button" data-copy-json>Copier</button>
+              </div>
+              <pre class="json-output" tabindex="0"><code data-json-output></code></pre>
+            </div>
           </section>
 
           <section class="event-panel" aria-labelledby="event-title">
@@ -297,6 +352,7 @@
 
       <section id="sources" class="story-section sources-section" data-section="sources">
         <source-list
+          density="compact"
           kicker="Sources consultées"
           title="Références A2UI utilisées pour cette page"
           summary="La page synthétise les concepts officiels, le dépôt Google/A2UI et les exemples de la galerie A2UI Composer."
@@ -336,6 +392,12 @@
             data-source-meta="A2UI Composer"
             data-source-description="Galerie publique de widgets A2UI Composer : cartes de vol, météo, achat, formulaires, dashboards et grilles."
             >A2UI Composer Gallery</a
+          >
+          <a
+            href="https://a2ui-composer.ag-ui.com/theater?scenario=restaurant-finder&step=23"
+            data-source-meta="A2UI Composer"
+            data-source-description="Theater Restaurant Finder : scénario interactif qui rejoue les messages A2UI étape par étape."
+            >A2UI Composer Theater — Restaurant Finder</a
           >
         </source-list>
       </section>

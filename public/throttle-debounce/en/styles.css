@@ -50,6 +50,7 @@ input,
 
 button:focus-visible,
 input:focus-visible,
+.home-link:focus-visible,
 .event-pad:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 3px;
@@ -67,6 +68,27 @@ input:focus-visible,
   gap: 24px;
   align-items: end;
   margin-bottom: 24px;
+}
+
+.home-link {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 34px;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.home-link:hover {
+  border-color: var(--ink);
+  color: var(--ink);
 }
 
 .eyebrow,
