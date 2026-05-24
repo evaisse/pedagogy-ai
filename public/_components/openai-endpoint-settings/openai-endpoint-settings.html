@@ -1,0 +1,51 @@
+<section class="settings-shell" part="surface">
+  <div class="settings-copy">
+    <span class="settings-kicker">Endpoint OpenAI</span>
+    <strong data-summary>Non configuré</strong>
+  </div>
+  <button class="settings-trigger" type="button" data-open>Configurer</button>
+</section>
+
+<dialog class="settings-dialog" data-dialog>
+  <form class="settings-panel" data-form novalidate>
+    <header class="settings-header">
+      <div>
+        <p class="settings-kicker">Connexion locale</p>
+        <h2>Endpoint OpenAI compatible</h2>
+      </div>
+      <button class="icon-button" type="button" data-close aria-label="Fermer">×</button>
+    </header>
+
+    <p class="settings-note">
+      La clé API reste côté serveur local. Le proxy <code>/api/v1</code> utilise <code>OPENAI_API_KEY</code>,
+      <code>OPENAI_BASE_URL</code> et <code>OPENAI_DEFAULT_MODEL</code> depuis <code>.env</code>.
+    </p>
+
+    <label class="field">
+      <span>URL endpoint</span>
+      <input
+        data-endpoint
+        name="endpoint"
+        type="text"
+        inputmode="url"
+        autocomplete="off"
+        placeholder="/api/v1"
+        required
+      />
+    </label>
+
+    <label class="field">
+      <span>Modèle</span>
+      <input data-model name="model" type="text" autocomplete="off" placeholder="gpt-5.5" required />
+    </label>
+
+    <p class="settings-status" data-status role="status" aria-live="polite"></p>
+
+    <footer class="settings-actions">
+      <button class="clear-button" type="button" data-clear>Effacer</button>
+      <span class="settings-spacer"></span>
+      <button class="secondary-button" type="button" data-close-secondary>Fermer</button>
+      <button class="primary-button" type="submit" data-validate>Valider et enregistrer</button>
+    </footer>
+  </form>
+</dialog>

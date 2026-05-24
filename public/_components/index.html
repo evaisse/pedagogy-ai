@@ -14,7 +14,9 @@
     />
     <link rel="stylesheet" href="../reset.css?v=20260519" />
     <link rel="stylesheet" href="./index.css" />
+    <script type="module" src="./source-list/source-list.js"></script>
     <script type="module" src="./token-flow/token-flow.js"></script>
+    <script type="module" src="./openai-endpoint-settings/openai-endpoint-settings.js"></script>
     <script type="module" src="./index.js"></script>
   </head>
   <body>
@@ -27,6 +29,8 @@
       </a>
       <nav class="page-nav" aria-label="Sections">
         <a href="#token-flow">token-flow</a>
+        <a href="#source-list">source-list</a>
+        <a href="#openai-endpoint-settings">endpoint-settings</a>
         <a href="#api">API</a>
         <a href="#structure">Structure</a>
       </nav>
@@ -106,6 +110,69 @@
         </div>
       </section>
 
+      <section id="source-list" class="component-section" aria-labelledby="source-list-title">
+        <div class="section-heading">
+          <p class="eyebrow">Available component</p>
+          <h2 id="source-list-title">source-list</h2>
+          <p>
+            A reusable source bibliography for mini-sites that need a readable list of supporting references.
+          </p>
+        </div>
+
+        <article class="example-panel">
+          <div class="example-heading">
+            <span>Declarative links</span>
+            <code>&lt;source-list&gt;</code>
+          </div>
+          <source-list
+            title="Prompt caching references"
+            summary="The component reads child links as fallback content and renders them as a scoped source list."
+          >
+            <a
+              href="https://platform.openai.com/docs/guides/prompt-caching"
+              data-source-meta="Official docs"
+              data-source-description="OpenAI guide for automatic prompt caching and cached token reporting."
+              >OpenAI prompt caching</a
+            >
+            <a
+              href="https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+              data-source-meta="Official docs"
+              data-source-description="Anthropic documentation for cache writes, cache reads, and TTL choices."
+              >Anthropic prompt caching</a
+            >
+            <a
+              href="https://ai.google.dev/gemini-api/docs/caching"
+              data-source-meta="Official docs"
+              data-source-description="Gemini API guide for implicit and explicit caching behavior."
+              >Gemini API caching</a
+            >
+          </source-list>
+        </article>
+      </section>
+
+      <section
+        id="openai-endpoint-settings"
+        class="component-section"
+        aria-labelledby="openai-endpoint-settings-title"
+      >
+        <div class="section-heading">
+          <p class="eyebrow">Available component</p>
+          <h2 id="openai-endpoint-settings-title">openai-endpoint-settings</h2>
+          <p>
+            A standalone settings wizard for validating a local OpenAI proxy and storing the endpoint/model choice in
+            <code>localStorage</code>.
+          </p>
+        </div>
+
+        <article class="example-panel">
+          <div class="example-heading">
+            <span>Endpoint wizard</span>
+            <code>&lt;openai-endpoint-settings&gt;</code>
+          </div>
+          <openai-endpoint-settings></openai-endpoint-settings>
+        </article>
+      </section>
+
       <section id="api" class="docs-section" aria-labelledby="api-title">
         <div class="section-heading">
           <p class="eyebrow">Component contract</p>
@@ -147,6 +214,36 @@
                 <td><code>token-flow-select</code></td>
                 <td>Fires when a token is selected. Payload is available in <code>event.detail</code>.</td>
               </tr>
+              <tr>
+                <td>Element</td>
+                <td><code>&lt;source-list&gt;</code></td>
+                <td>Renders child links or assigned <code>sources</code> data as a scoped source list.</td>
+              </tr>
+              <tr>
+                <td>Attribute</td>
+                <td><code>kicker</code>, <code>title</code>, <code>summary</code></td>
+                <td>Header copy for the source list.</td>
+              </tr>
+              <tr>
+                <td>Property</td>
+                <td><code>sources</code></td>
+                <td>Array of source objects with <code>href</code>, <code>label</code>, <code>description</code>, and <code>meta</code>.</td>
+              </tr>
+              <tr>
+                <td>Element</td>
+                <td><code>&lt;openai-endpoint-settings&gt;</code></td>
+                <td>Validates the local OpenAI chat completions proxy and stores endpoint/model settings locally.</td>
+              </tr>
+              <tr>
+                <td>Method</td>
+                <td><code>getSettings()</code></td>
+                <td>Returns the stored endpoint settings for client-side API calls.</td>
+              </tr>
+              <tr>
+                <td>Event</td>
+                <td><code>openai-endpoint-settings-change</code></td>
+                <td>Fires when endpoint configuration is saved or cleared.</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -162,6 +259,14 @@
   index.html
   index.css
   index.js
+  source-list/
+    source-list.js
+    source-list.html
+    source-list.css
+  openai-endpoint-settings/
+    openai-endpoint-settings.js
+    openai-endpoint-settings.html
+    openai-endpoint-settings.css
   token-flow/
     token-flow.js
     token-flow.html

@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>A2UI : quand un agent parle en interface</title>
+    <meta
+      name="description"
+      content="Mini-site pedagogique en francais sur A2UI, le protocole declaratif qui permet aux agents de generer des interfaces natives et sures."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23f4f7fb'/%3E%3Cpath d='M14 18h36v8H14zM14 32h16v14H14zM36 32h14v14H36z' fill='%230b7f68'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="../../reset.css?v=20260519" />
+    <link rel="stylesheet" href="./styles.css?v=20260521" />
+    <script type="module" src="../../_components/openai-endpoint-settings/openai-endpoint-settings.js"></script>
+    <script type="module" src="../../_components/source-list/source-list.js"></script>
+    <script type="module" src="../../_components/token-flow/token-flow.js"></script>
+    <script src="./script.js?v=20260521" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Aller au contenu</a>
+    <div class="scroll-progress" aria-hidden="true">
+      <span data-progress-fill></span>
+    </div>
+
+    <header class="site-header" aria-label="Navigation de la page">
+      <a class="brand" href="#top" aria-label="Retour au debut">
+        <span class="brand-mark" aria-hidden="true">A2</span>
+        A2UI
+      </a>
+      <nav class="story-nav" aria-label="Chapitres">
+        <a href="#model" data-nav-link="model">Modèle</a>
+        <a href="#stream" data-nav-link="stream">Stream</a>
+        <a href="#catalog" data-nav-link="catalog">Catalogue</a>
+        <a href="#demo" data-nav-link="demo">Démo</a>
+        <a href="#sources" data-nav-link="sources">Sources</a>
+      </nav>
+    </header>
+
+    <main id="content">
+      <section id="top" class="hero story-section" data-section="top">
+        <div class="hero-copy">
+          <p class="eyebrow">Agent-to-User Interface</p>
+          <h1>A2UI transforme une réponse d’agent en interface native.</h1>
+          <p class="lead">
+            Au lieu d’envoyer du HTML ou du JavaScript, l’agent envoie des messages JSON déclaratifs. Le client garde
+            le contrôle : il valide, résout les données, puis rend ses propres composants.
+          </p>
+          <div class="hero-actions" aria-label="Actions rapides">
+            <a class="button primary" href="#model">Comprendre le modèle</a>
+            <a class="button secondary" href="#demo">Tester la démo</a>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-label="Flux simplifie A2UI">
+          <div class="hero-rail">
+            <article class="flow-node agent-node">
+              <span>01</span>
+              <strong>Agent</strong>
+              <p>Produit une intention d’interface.</p>
+            </article>
+            <article class="flow-node stream-node">
+              <span>02</span>
+              <strong>Messages A2UI</strong>
+              <p>Décrivent structure, état et actions.</p>
+            </article>
+            <article class="flow-node renderer-node">
+              <span>03</span>
+              <strong>Renderer client</strong>
+              <p>Mappe vers les widgets autorisés.</p>
+            </article>
+          </div>
+
+          <pre class="hero-code" aria-label="Exemple de message A2UI"><code>{
+  "version": "v0.9",
+  "updateComponents": {
+    "surfaceId": "booking",
+    "components": [
+      { "id": "root", "component": "Card", "child": "form" }
+    ]
+  }
+}</code></pre>
+        </div>
+      </section>
+
+      <section id="model" class="story-section split-section" data-section="model">
+        <div class="section-copy">
+          <p class="eyebrow">1 · Modèle mental</p>
+          <h2>A2UI sépare ce que l’agent décide de ce que le navigateur exécute.</h2>
+          <p>
+            L’agent ne pousse pas de code arbitraire. Il choisit des composants dans un catalogue connu, les relie par
+            identifiants, puis attache les valeurs dynamiques à un modèle de données.
+          </p>
+          <p>
+            Cette séparation explique l’intérêt du protocole : la même intention peut voyager via AG-UI, A2A, SSE ou
+            WebSocket, tandis que chaque client garde son rendu natif.
+          </p>
+        </div>
+
+        <div class="sticky-visual concept-board" aria-label="Quatre briques A2UI">
+          <article class="concept-tile">
+            <span>Surface</span>
+            <h3>Où afficher</h3>
+            <p>Une zone nommée pour une carte, une modale, un panneau ou un fil de chat.</p>
+          </article>
+          <article class="concept-tile">
+            <span>Catalogue</span>
+            <h3>Ce qui est permis</h3>
+            <p>Types de composants, propriétés, fonctions, thème et règles de validation.</p>
+          </article>
+          <article class="concept-tile">
+            <span>Composants</span>
+            <h3>La structure</h3>
+            <p>Une liste plate d’objets avec des IDs ; l’arbre se reconstruit par références.</p>
+          </article>
+          <article class="concept-tile">
+            <span>Data model</span>
+            <h3>L’état</h3>
+            <p>Des chemins JSON Pointer alimentent textes, formulaires, sliders et choix.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="stream" class="story-section split-section reverse" data-section="stream">
+        <div class="section-copy">
+          <p class="eyebrow">2 · Stream</p>
+          <h2>Le rendu arrive par messages successifs, pas par page complète.</h2>
+          <p>
+            En v0.9, le serveur crée une surface, pousse des composants, met à jour le modèle de données, puis peut
+            continuer à modifier la même interface. Le renderer doit tolérer les morceaux manquants pendant le flux.
+          </p>
+          <p>
+            C’est adapté aux agents : l’interface peut apparaître progressivement pendant que le modèle complète ou
+            corrige sa réponse.
+          </p>
+        </div>
+
+        <div class="sticky-visual stream-lab" data-stream-lab>
+          <div class="visual-heading">
+            <span>Messages v0.9</span>
+            <strong data-stream-title>Créer la surface</strong>
+          </div>
+
+          <div class="stream-controls" role="group" aria-label="Etapes du flux A2UI">
+            <button class="stream-button is-active" type="button" data-stream-step="create" aria-pressed="true">
+              Surface
+            </button>
+            <button class="stream-button" type="button" data-stream-step="components" aria-pressed="false">
+              Composants
+            </button>
+            <button class="stream-button" type="button" data-stream-step="data" aria-pressed="false">Données</button>
+            <button class="stream-button" type="button" data-stream-step="action" aria-pressed="false">Action</button>
+          </div>
+
+          <div class="stream-stage" data-stream-stage="create" aria-hidden="true">
+            <span class="stage-chip is-active">createSurface</span>
+            <span class="stage-chip">updateComponents</span>
+            <span class="stage-chip">updateDataModel</span>
+            <span class="stage-chip">action</span>
+          </div>
+
+          <p class="stream-copy" data-stream-copy>
+            Le client réserve une surface et fixe le catalogue qui servira à valider les composants.
+          </p>
+          <pre class="code-panel" aria-label="Message A2UI actif"><code data-stream-code>{
+  "version": "v0.9",
+  "createSurface": {
+    "surfaceId": "demo",
+    "catalogId": "https://a2ui.org/specification/v0_9/basic_catalog.json"
+  }
+}</code></pre>
+        </div>
+      </section>
+
+      <section id="catalog" class="story-section catalog-section" data-section="catalog">
+        <div class="section-copy narrow">
+          <p class="eyebrow">3 · Contrat de rendu</p>
+          <h2>La sécurité vient du catalogue, pas de la confiance dans le texte du modèle.</h2>
+          <p>
+            A2UI limite l’agent à un vocabulaire : composants, propriétés et fonctions explicitement supportés par le
+            client. Dans cette page, la démo expose un petit catalogue A2UI et deux composants du dépôt comme types
+            custom : <code>TokenFlow</code> et <code>SourceList</code>.
+          </p>
+        </div>
+
+        <div class="catalog-grid" aria-label="Catalogue supporte par la demo">
+          <article class="catalog-column">
+            <span class="catalog-label">Base A2UI</span>
+            <h3>Structure et interaction</h3>
+            <ul>
+              <li><code>Text</code>, <code>Icon</code>, <code>Image</code>, <code>Divider</code></li>
+              <li><code>Row</code>, <code>Column</code>, <code>List</code>, <code>Card</code>, <code>Tabs</code></li>
+              <li><code>Button</code>, <code>TextField</code>, <code>CheckBox</code>, <code>Slider</code></li>
+              <li><code>ChoicePicker</code>, <code>DateTimeInput</code></li>
+            </ul>
+          </article>
+
+          <article class="catalog-column custom-catalog">
+            <span class="catalog-label">Catalogue custom</span>
+            <h3>Composants du dépôt</h3>
+            <div class="custom-components">
+              <token-flow
+                kicker="Custom"
+                title="TokenFlow"
+                summary="Un composant Web déjà disponible peut devenir une cible A2UI sûre."
+              ></token-flow>
+              <div class="source-preview">
+                <strong>SourceList</strong>
+                <p>La démo peut aussi afficher une bibliographie structurée depuis une réponse d’agent.</p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="demo" class="story-section demo-section" data-section="demo">
+        <div class="section-copy demo-heading">
+          <p class="eyebrow">4 · Démo live</p>
+          <h2>Demande une interface, puis regarde le JSON A2UI devenir widgets.</h2>
+          <p>
+            Le chatbot appelle le proxy local <code>/api/v1</code>, configuré par <code>.env</code>. Le modèle renvoie
+            uniquement des messages A2UI v0.9 ; le renderer local refuse les composants hors catalogue.
+          </p>
+        </div>
+
+        <div class="demo-workbench">
+          <section class="chat-panel" aria-labelledby="chat-title">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Chatbot</p>
+                <h3 id="chat-title">Générer une interface</h3>
+              </div>
+              <openai-endpoint-settings id="endpoint-settings"></openai-endpoint-settings>
+            </div>
+
+            <div class="prompt-presets" aria-label="Exemples de demandes">
+              <button class="preset-button" type="button" data-sample="flight">Vol</button>
+              <button class="preset-button" type="button" data-sample="form">Formulaire</button>
+              <button class="preset-button" type="button" data-sample="dashboard">Dashboard</button>
+              <button class="preset-button" type="button" data-sample="tokenFlow">TokenFlow</button>
+              <button class="preset-button" type="button" data-sample="sources">Sources</button>
+            </div>
+
+            <label class="prompt-field">
+              <span>Message utilisateur</span>
+              <textarea
+                id="demo-prompt"
+                rows="6"
+                spellcheck="true"
+              >Crée une carte de statut de vol Paris → Tokyo avec horaire, porte, état et un bouton d’action.</textarea>
+            </label>
+
+            <div class="demo-actions">
+              <button class="button secondary" type="button" data-render-sample>Afficher l’exemple local</button>
+              <button class="button primary" type="button" data-send-prompt>Appeler le modèle</button>
+            </div>
+
+            <p class="demo-status" data-demo-status role="status" aria-live="polite"></p>
+          </section>
+
+          <section class="render-panel" aria-labelledby="render-title">
+            <div class="panel-heading inline-heading">
+              <div>
+                <p class="eyebrow">Renderer local</p>
+                <h3 id="render-title">Surface A2UI</h3>
+              </div>
+              <span class="surface-badge" data-surface-badge>demo</span>
+            </div>
+            <div class="a2ui-surface" data-a2ui-surface aria-live="polite"></div>
+          </section>
+
+          <section class="json-panel" aria-labelledby="json-title">
+            <div class="panel-heading inline-heading">
+              <div>
+                <p class="eyebrow">Messages</p>
+                <h3 id="json-title">JSON A2UI</h3>
+              </div>
+              <button class="copy-button" type="button" data-copy-json>Copier</button>
+            </div>
+            <pre class="json-output" tabindex="0"><code data-json-output></code></pre>
+          </section>
+
+          <section class="event-panel" aria-labelledby="event-title">
+            <div class="panel-heading inline-heading">
+              <div>
+                <p class="eyebrow">Actions</p>
+                <h3 id="event-title">Événements client</h3>
+              </div>
+              <button class="copy-button" type="button" data-clear-events>Vider</button>
+            </div>
+            <ol class="event-log" data-event-log aria-live="polite"></ol>
+          </section>
+        </div>
+      </section>
+
+      <section id="sources" class="story-section sources-section" data-section="sources">
+        <source-list
+          kicker="Sources consultées"
+          title="Références A2UI utilisées pour cette page"
+          summary="La page synthétise les concepts officiels, le dépôt Google/A2UI et les exemples de la galerie A2UI Composer."
+        >
+          <a
+            href="https://a2ui.org/"
+            data-source-meta="a2ui.org"
+            data-source-description="Page d’accueil : versions, principes, flux typique et ressources de démarrage."
+            >A2UI — A Protocol for Agent-Driven Interfaces</a
+          >
+          <a
+            href="https://github.com/google/A2UI"
+            data-source-meta="GitHub"
+            data-source-description="README du projet Google/A2UI : philosophie, architecture, cas d’usage, renderers et statut public preview."
+            >google/A2UI</a
+          >
+          <a
+            href="https://a2ui.org/concepts/overview/"
+            data-source-meta="Documentation"
+            data-source-description="Concepts clés : messages streaming, composants déclaratifs, data binding et types de messages v0.8/v0.9."
+            >A2UI Core Concepts</a
+          >
+          <a
+            href="https://a2ui.org/reference/components/"
+            data-source-meta="Documentation"
+            data-source-description="Galerie de composants : Row, Column, Text, Button, TextField, ChoicePicker, Card, Tabs et différences v0.8/v0.9."
+            >A2UI Component Gallery</a
+          >
+          <a
+            href="https://a2ui.org/specification/v0.9-a2ui/"
+            data-source-meta="Spécification"
+            data-source-description="Spécification v0.9 draft : createSurface, updateComponents, updateDataModel, catalogue, binding et actions."
+            >A2UI Protocol v0.9</a
+          >
+          <a
+            href="https://a2ui-composer.ag-ui.com/gallery"
+            data-source-meta="A2UI Composer"
+            data-source-description="Galerie publique de widgets A2UI Composer : cartes de vol, météo, achat, formulaires, dashboards et grilles."
+            >A2UI Composer Gallery</a
+          >
+        </source-list>
+      </section>
+    </main>
+  </body>
+</html>

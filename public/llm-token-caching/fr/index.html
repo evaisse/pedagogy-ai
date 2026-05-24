@@ -14,6 +14,7 @@
     />
     <link rel="stylesheet" href="../../reset.css?v=20260519" />
     <link rel="stylesheet" href="./styles.css?v=20260519-reset" />
+    <script type="module" src="../../_components/source-list/source-list.js"></script>
   </head>
   <body>
     <a class="skip-link" href="#content">Aller au contenu</a>
@@ -32,6 +33,7 @@
         <a href="#breakers" data-nav-link="breakers">Ratés</a>
         <a href="#pricing" data-nav-link="pricing">Prix</a>
         <a href="#simulator" data-nav-link="simulator">Simuler</a>
+        <a href="#recap" data-nav-link="recap">Sources</a>
       </nav>
     </header>
 
@@ -790,18 +792,55 @@
             <li>Mesure toujours sur ton fournisseur : TTL, seuils et réductions varient.</li>
           </ol>
         </div>
-        <div class="source-strip" aria-label="Sources consultees">
-          <span>Sources consultées</span>
-          <a href="https://platform.openai.com/docs/guides/prompt-caching">OpenAI</a>
-          <a href="https://platform.claude.com/docs/en/build-with-claude/prompt-caching">Anthropic</a>
-          <a href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/context-cache/context-cache-overview"
-            >Vertex AI</a
+        <source-list
+          kicker="Références"
+          title="Sources consultées"
+          summary="Liens utilisés pour vérifier les comportements de cache, les signaux d’usage et les politiques de prix décrits dans cette page."
+          aria-label="Sources consultees"
+        >
+          <a
+            href="https://platform.openai.com/docs/guides/prompt-caching"
+            data-source-meta="Documentation officielle"
+            data-source-description="Guide OpenAI sur le prompt caching, les seuils et le champ cached_tokens."
+            >OpenAI prompt caching</a
           >
-          <a href="https://ai.google.dev/gemini-api/docs/caching">Gemini API</a>
-          <a href="https://sankalp.bearblog.dev/how-prompt-caching-works/">Sankalp</a>
-          <a href="https://www.digitalocean.com/community/tutorials/prompt-caching-explained">DigitalOcean</a>
-          <a href="https://www.ibm.com/think/topics/prompt-caching">IBM</a>
-        </div>
+          <a
+            href="https://platform.claude.com/docs/en/build-with-claude/prompt-caching"
+            data-source-meta="Documentation officielle"
+            data-source-description="Documentation Anthropic Claude sur les écritures, lectures et durées de vie du cache."
+            >Anthropic prompt caching</a
+          >
+          <a
+            href="https://docs.cloud.google.com/vertex-ai/generative-ai/docs/context-cache/context-cache-overview"
+            data-source-meta="Documentation officielle"
+            data-source-description="Vue d’ensemble Vertex AI du cache de contexte explicite et de ses paramètres."
+            >Vertex AI context cache</a
+          >
+          <a
+            href="https://ai.google.dev/gemini-api/docs/caching"
+            data-source-meta="Documentation officielle"
+            data-source-description="Guide Gemini API sur le cache implicite, le cache explicite et les métadonnées d’usage."
+            >Gemini API caching</a
+          >
+          <a
+            href="https://sankalp.bearblog.dev/how-prompt-caching-works/"
+            data-source-meta="Article explicatif"
+            data-source-description="Explication technique du fonctionnement du cache de prompt et du préfixe réutilisable."
+            >How prompt caching works</a
+          >
+          <a
+            href="https://www.digitalocean.com/community/tutorials/prompt-caching-explained"
+            data-source-meta="Article explicatif"
+            data-source-description="Introduction pratique au prompt caching et à ses cas d’usage côté applications."
+            >DigitalOcean prompt caching explained</a
+          >
+          <a
+            href="https://www.ibm.com/think/topics/prompt-caching"
+            data-source-meta="Article explicatif"
+            data-source-description="Synthèse IBM sur le concept de prompt caching et ses bénéfices opérationnels."
+            >IBM prompt caching</a
+          >
+        </source-list>
       </section>
     </main>
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pedagogy Web Components"
+  short_description: "Build shared vanilla Web Components"
+  default_prompt: "Use $pedagogy-web-components to add a reusable vanilla Web Component to a static mini-site."

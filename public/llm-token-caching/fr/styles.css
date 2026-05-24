@@ -1267,34 +1267,35 @@ input[type="range"] {
   font-weight: 850;
 }
 
-.source-strip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
+source-list {
+  display: block;
   max-width: 1100px;
   margin: 28px auto 0;
+}
+
+source-list:not(:defined) {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper-strong);
   color: var(--muted);
-  font-size: 0.9rem;
 }
 
-.source-strip span {
-  margin-right: 4px;
-  font-weight: 820;
-}
-
-.source-strip a {
+source-list:not(:defined) a {
   display: inline-flex;
   min-height: 32px;
   align-items: center;
+  width: fit-content;
   padding: 5px 8px;
   border: 1px solid var(--line);
   border-radius: 6px;
-  background: var(--paper-strong);
+  background: var(--paper);
   text-decoration: none;
 }
 
-.source-strip a:hover {
+source-list:not(:defined) a:hover {
   border-color: var(--line-strong);
   color: var(--ink);
 }

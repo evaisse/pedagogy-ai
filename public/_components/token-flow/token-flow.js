@@ -1,6 +1,5 @@
-const componentUrl = new URL(".", import.meta.url);
-const templateUrl = new URL("./token-flow.html", componentUrl);
-const stylesheetUrl = new URL("./token-flow.css", componentUrl);
+const templateUrl = new URL("./token-flow.html", import.meta.url);
+const stylesheetUrl = new URL("./token-flow.css", import.meta.url);
 
 const defaultData = {
   kicker: "Prompt cache",

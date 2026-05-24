@@ -1,0 +1,246 @@
+:host {
+  display: block;
+  color-scheme: light;
+  --endpoint-surface: #ffffff;
+  --endpoint-paper: #f4f7fb;
+  --endpoint-ink: #17191f;
+  --endpoint-muted: #606a78;
+  --endpoint-line: #cfd7e3;
+  --endpoint-line-strong: #9aa8ba;
+  --endpoint-accent: #0b7f68;
+  --endpoint-accent-strong: #075b4c;
+  --endpoint-accent-soft: #d9f4ed;
+  --endpoint-danger: #a7353f;
+  --endpoint-danger-soft: #ffe4e7;
+  --endpoint-shadow: 0 24px 70px rgb(20 30 46 / 18%);
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.settings-shell {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border: 1px solid var(--endpoint-line);
+  border-radius: 8px;
+  background: var(--endpoint-surface);
+  color: var(--endpoint-ink);
+}
+
+.settings-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.settings-kicker {
+  color: var(--endpoint-accent);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.settings-copy strong {
+  color: var(--endpoint-ink);
+  font-size: 0.92rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.settings-trigger,
+.primary-button,
+.secondary-button,
+.clear-button,
+.icon-button {
+  min-height: 38px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.settings-trigger,
+.primary-button {
+  border: 1px solid var(--endpoint-accent-strong);
+  background: var(--endpoint-accent);
+  color: white;
+  font-weight: 820;
+}
+
+.settings-trigger {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+}
+
+.secondary-button,
+.clear-button,
+.icon-button {
+  border: 1px solid var(--endpoint-line);
+  background: var(--endpoint-surface);
+  color: var(--endpoint-ink);
+}
+
+.clear-button {
+  color: var(--endpoint-danger);
+}
+
+.settings-trigger:hover,
+.primary-button:hover {
+  background: var(--endpoint-accent-strong);
+}
+
+.secondary-button:hover,
+.clear-button:hover,
+.icon-button:hover {
+  border-color: var(--endpoint-line-strong);
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid #2f65c8;
+  outline-offset: 3px;
+}
+
+.settings-dialog {
+  width: min(560px, calc(100vw - 28px));
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--endpoint-ink);
+}
+
+.settings-dialog::backdrop {
+  background: rgb(14 18 26 / 54%);
+}
+
+.settings-panel {
+  display: grid;
+  gap: 16px;
+  padding: clamp(18px, 4vw, 26px);
+  border: 1px solid var(--endpoint-line);
+  border-radius: 8px;
+  background: var(--endpoint-surface);
+  box-shadow: var(--endpoint-shadow);
+}
+
+.settings-header,
+.settings-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.settings-header {
+  justify-content: space-between;
+}
+
+.settings-header h2,
+.settings-note,
+.settings-status {
+  margin: 0;
+}
+
+.settings-header h2 {
+  font-size: clamp(1.35rem, 4vw, 1.8rem);
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.icon-button {
+  display: grid;
+  width: 38px;
+  padding: 0;
+  place-items: center;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.settings-note {
+  color: var(--endpoint-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.field {
+  display: grid;
+  gap: 7px;
+}
+
+.field span {
+  font-size: 0.82rem;
+  font-weight: 820;
+}
+
+.field input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--endpoint-line);
+  border-radius: 6px;
+  background: var(--endpoint-paper);
+  color: var(--endpoint-ink);
+}
+
+.field input:user-invalid {
+  border-color: var(--endpoint-danger);
+  background: var(--endpoint-danger-soft);
+}
+
+.settings-status {
+  min-height: 24px;
+  color: var(--endpoint-muted);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.settings-status[data-tone="success"] {
+  color: var(--endpoint-accent-strong);
+}
+
+.settings-status[data-tone="error"] {
+  color: var(--endpoint-danger);
+}
+
+.settings-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+.settings-actions button {
+  padding: 8px 12px;
+}
+
+.settings-spacer {
+  flex: 1 1 auto;
+}
+
+@media (max-width: 520px) {
+  .settings-shell {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .settings-trigger {
+    width: 100%;
+  }
+
+  .settings-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .settings-spacer {
+    display: none;
+  }
+}

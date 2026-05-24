@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Harnais d’agent de code</title>
+    <meta
+      name="description"
+      content="Mini-site pedagogique en francais expliquant comment un harnais transforme un modele LLM en agent de code utile."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23f7f5ef'/%3E%3Cpath d='M14 18h36v10H14zM20 36h10v10H20zM38 36h10v10H38z' fill='%232f6f7e'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="../../reset.css?v=20260519" />
+    <link rel="stylesheet" href="./styles.css?v=20260520" />
+    <script type="module" src="../../_components/source-list/source-list.js"></script>
+    <script src="./script.js?v=20260520" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Aller au contenu</a>
+    <div class="scroll-progress" aria-hidden="true">
+      <span data-progress-fill></span>
+    </div>
+
+    <header class="site-header" aria-label="Navigation de la page">
+      <a class="brand" href="#top" aria-label="Retour au debut">
+        <span class="brand-mark" aria-hidden="true">⌁</span>
+        Harnais agent
+      </a>
+      <nav class="story-nav" aria-label="Chapitres">
+        <a href="#boundary" data-nav-link="boundary">Frontière</a>
+        <a href="#loop" data-nav-link="loop">Boucle</a>
+        <a href="#context" data-nav-link="context">Contexte</a>
+        <a href="#tools" data-nav-link="tools">Outils</a>
+        <a href="#continuity" data-nav-link="continuity">Continuité</a>
+        <a href="#scenario" data-nav-link="scenario">Choisir</a>
+        <a href="#sources" data-nav-link="sources">Sources</a>
+      </nav>
+    </header>
+
+    <main id="content">
+      <section id="top" class="hero story-section" data-section="top">
+        <div class="hero-copy">
+          <p class="eyebrow">Agent = modèle + harnais</p>
+          <h1>Un LLM ne devient agent de code qu’avec un harnais.</h1>
+          <p class="lead">
+            Le modèle prédit du texte. Le harnais lui donne un espace de travail, une boucle d’action, des outils, de
+            la mémoire, des garde-fous et une façon de vérifier le résultat.
+          </p>
+          <div class="hero-actions" aria-label="Actions rapides">
+            <a class="button primary" href="#boundary">Voir l’anatomie</a>
+            <a class="button secondary" href="#scenario">Tester un cas</a>
+          </div>
+        </div>
+
+        <div class="hero-visual" data-harness-demo>
+          <div class="mode-controls" role="group" aria-label="Choisir le niveau de harnais">
+            <button class="mode-button is-active" type="button" data-harness-mode="chat" aria-pressed="true">
+              Chat brut
+            </button>
+            <button class="mode-button" type="button" data-harness-mode="code" aria-pressed="false">
+              Agent de code
+            </button>
+            <button class="mode-button" type="button" data-harness-mode="team" aria-pressed="false">
+              Équipe d’agents
+            </button>
+          </div>
+
+          <div class="harness-stage" aria-live="polite">
+            <article class="stage-node request-node">
+              <span>Objectif</span>
+              <strong data-harness-request>Explique ce bug</strong>
+            </article>
+            <article class="stage-node model-node">
+              <span>Modèle</span>
+              <strong data-harness-model>Raisonne et propose</strong>
+            </article>
+            <article class="stage-node harness-node">
+              <span>Harnais</span>
+              <strong data-harness-layer>Historique de chat</strong>
+            </article>
+            <article class="stage-node result-node">
+              <span>Résultat</span>
+              <strong data-harness-result>Réponse en prose</strong>
+            </article>
+          </div>
+
+          <p class="harness-copy" data-harness-copy>
+            Le chat ajoute surtout un historique autour du modèle. Il peut expliquer, mais il ne lit pas le dépôt, ne
+            modifie pas les fichiers et ne lance pas les tests.
+          </p>
+
+          <div class="signal-row" aria-label="Capacites actives">
+            <span data-harness-signal-one>Historique</span>
+            <span data-harness-signal-two>Prompt</span>
+            <span data-harness-signal-three>Réponse texte</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="boundary" class="story-section split-section" data-section="boundary">
+        <div class="section-copy">
+          <p class="eyebrow">1 · Frontière</p>
+          <h2>Tout ce qui n’est pas le modèle fait partie du harnais.</h2>
+          <p>
+            Un harnais d’agent est le logiciel autour du modèle : consignes système, forme du prompt, outils,
+            exécution, stockage, permissions, orchestration et logique de reprise.
+          </p>
+          <p>
+            Cette frontière est utile parce qu’elle évite de tout attribuer au modèle. Quand un agent semble meilleur
+            qu’un chat, c’est souvent parce que le harnais lui fournit un meilleur contexte et des retours d’exécution.
+          </p>
+        </div>
+
+        <div class="sticky-visual layer-visual" aria-label="Couches principales d'un harnais d'agent">
+          <div class="layer-card model-layer">
+            <span>01</span>
+            <div>
+              <h3>Modèle</h3>
+              <p>Produit les décisions et le texte à partir du contexte fourni.</p>
+            </div>
+          </div>
+          <div class="layer-card">
+            <span>02</span>
+            <div>
+              <h3>Prompt stable</h3>
+              <p>Instructions, descriptions d’outils et résumé du dépôt restent ordonnés.</p>
+            </div>
+          </div>
+          <div class="layer-card">
+            <span>03</span>
+            <div>
+              <h3>Boucle de contrôle</h3>
+              <p>Observer, choisir une action, exécuter, lire le résultat, recommencer.</p>
+            </div>
+          </div>
+          <div class="layer-card">
+            <span>04</span>
+            <div>
+              <h3>Environnement</h3>
+              <p>Fichiers, terminal, sandbox, navigateur, tests et journaux.</p>
+            </div>
+          </div>
+          <div class="layer-card">
+            <span>05</span>
+            <div>
+              <h3>État durable</h3>
+              <p>Transcript, mémoire de travail, plan, diff et historique git.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="loop" class="story-section split-section reverse" data-section="loop">
+        <div class="section-copy">
+          <p class="eyebrow">2 · Boucle</p>
+          <h2>Le harnais transforme une réponse unique en travail itératif.</h2>
+          <p>
+            Un agent de code avance par cycles. Il observe le dépôt, inspecte les indices, choisit une action,
+            l’exécute dans l’environnement, puis vérifie si le résultat rapproche l’objectif.
+          </p>
+          <p>
+            Cette boucle est la différence pratique entre « donner un conseil » et « corriger un fichier puis prouver
+            que le test passe ».
+          </p>
+        </div>
+
+        <div class="sticky-visual loop-visual" data-loop-demo>
+          <div class="visual-heading">
+            <span>Boucle observe → agit</span>
+            <strong data-loop-title>Observer</strong>
+          </div>
+
+          <div class="loop-controls" role="group" aria-label="Etapes de la boucle agentique">
+            <button class="loop-button is-active" type="button" data-loop-step="observe" aria-pressed="true">
+              Observer
+            </button>
+            <button class="loop-button" type="button" data-loop-step="inspect" aria-pressed="false">Inspecter</button>
+            <button class="loop-button" type="button" data-loop-step="choose" aria-pressed="false">Choisir</button>
+            <button class="loop-button" type="button" data-loop-step="act" aria-pressed="false">Agir</button>
+            <button class="loop-button" type="button" data-loop-step="verify" aria-pressed="false">Vérifier</button>
+            <button class="loop-button" type="button" data-loop-step="reduce" aria-pressed="false">Réduire</button>
+          </div>
+
+          <div class="loop-ring" aria-hidden="true" data-loop-ring="observe">
+            <span class="ring-step is-active">Observer</span>
+            <span class="ring-step">Inspecter</span>
+            <span class="ring-step">Choisir</span>
+            <span class="ring-step">Agir</span>
+            <span class="ring-step">Vérifier</span>
+            <span class="ring-step">Réduire</span>
+          </div>
+
+          <p class="loop-copy" data-loop-copy>
+            Le harnais collecte les signaux utiles : fichiers, statut git, logs, erreurs de test, sortie terminal et
+            consignes du projet.
+          </p>
+          <pre class="code-panel" aria-label="Exemple d'evenement de boucle"><code data-loop-code>{
+  "phase": "observe",
+  "inputs": ["git status", "README", "test log"]
+}</code></pre>
+        </div>
+      </section>
+
+      <section id="context" class="story-section context-section" data-section="context">
+        <div class="section-copy narrow">
+          <p class="eyebrow">3 · Contexte</p>
+          <h2>Le harnais décide ce que le modèle voit maintenant, plus tard, ou jamais.</h2>
+          <p>
+            Le modèle ne garde pas seul une mémoire durable du dépôt. Le harnais reconstruit le prompt à chaque tour en
+            séparant les faits stables, les événements récents et les notes qui doivent survivre à la session.
+          </p>
+        </div>
+
+        <div class="context-board" aria-label="Architecture du contexte d'un agent de code">
+          <article class="context-lane stable-lane">
+            <span>Préfixe stable</span>
+            <h3>Instructions · outils · résumé workspace</h3>
+            <p>Ordonné pour être réutilisable, cacheable et peu bruyant.</p>
+          </article>
+          <article class="context-lane live-lane">
+            <span>État vivant</span>
+            <h3>Demande · diff · logs · test en cours</h3>
+            <p>Change à chaque tour et reste proche de la décision courante.</p>
+          </article>
+          <article class="context-lane durable-lane">
+            <span>Stockage durable</span>
+            <h3>Transcript · mémoire · fichiers · git</h3>
+            <p>Permet de reprendre, compacter et partager le travail entre agents.</p>
+          </article>
+        </div>
+
+        <div class="prompt-diagram" aria-label="Prompt reconstruit par le harnais">
+          <div class="prompt-segment stable-segment">
+            <span>Stable</span>
+            <strong>Règles + outils + carte du dépôt</strong>
+          </div>
+          <div class="prompt-segment memory-segment">
+            <span>Résumé compact</span>
+            <strong>Ce qui compte encore</strong>
+          </div>
+          <div class="prompt-segment active-segment">
+            <span>Bord actif</span>
+            <strong>Nouvelle demande + observations</strong>
+          </div>
+        </div>
+      </section>
+
+      <section id="tools" class="story-section split-section" data-section="tools">
+        <div class="section-copy">
+          <p class="eyebrow">4 · Outils et garde-fous</p>
+          <h2>Le modèle demande. Le harnais valide, exécute et borne le résultat.</h2>
+          <p>
+            Un bon harnais ne laisse pas le modèle improviser des actions opaques. Il expose des outils nommés, vérifie
+            les arguments, demande une permission quand l’action est sensible et renvoie une observation exploitable.
+          </p>
+          <p>
+            Le sandbox et les politiques d’accès font partie de cette couche : ils contrôlent où le code s’exécute, ce
+            qui peut être lu ou écrit, et quels résultats retournent dans le contexte.
+          </p>
+        </div>
+
+        <div class="sticky-visual gate-visual" aria-label="Flux de validation d'un appel outil">
+          <article class="gate-step">
+            <span>Action structurée</span>
+            <strong>read_file({ path })</strong>
+          </article>
+          <div class="gate-arrow" aria-hidden="true">↓</div>
+          <article class="gate-step check-step">
+            <span>Validation</span>
+            <strong>outil connu · chemin autorisé · arguments valides</strong>
+          </article>
+          <div class="gate-arrow" aria-hidden="true">↓</div>
+          <article class="gate-step permission-step">
+            <span>Permission</span>
+            <strong>lecture libre, écriture ou shell sous contrôle</strong>
+          </article>
+          <div class="gate-arrow" aria-hidden="true">↓</div>
+          <article class="gate-step result-step">
+            <span>Observation bornée</span>
+            <strong>sortie utile, logs longs compactés, erreurs conservées</strong>
+          </article>
+        </div>
+      </section>
+
+      <section id="continuity" class="story-section continuity-section" data-section="continuity">
+        <div class="section-copy narrow">
+          <p class="eyebrow">5 · Travail long</p>
+          <h2>Les tâches longues échouent quand l’état, le contexte et la vérification dérivent.</h2>
+          <p>
+            Les articles insistent sur les mêmes primitives : filesystem et git pour suivre le travail, compaction pour
+            éviter le contexte saturé, tests pour créer un signal de vérité, et sous-agents pour paralléliser ce qui est
+            vraiment indépendant.
+          </p>
+        </div>
+
+        <div class="continuity-grid" aria-label="Primitives de continuite pour un agent de code">
+          <article class="continuity-card">
+            <span>01</span>
+            <h3>Plan et trace</h3>
+            <p>Le harnais garde une piste vérifiable : objectif, étapes, fichiers touchés, sorties et décisions.</p>
+          </article>
+          <article class="continuity-card">
+            <span>02</span>
+            <h3>Compaction</h3>
+            <p>Les longs logs et anciens tours sont réduits sans masquer les faits nécessaires à la suite.</p>
+          </article>
+          <article class="continuity-card">
+            <span>03</span>
+            <h3>Vérification</h3>
+            <p>Tests, lint, captures, logs et diff donnent au modèle un retour concret au lieu d’une impression.</p>
+          </article>
+          <article class="continuity-card">
+            <span>04</span>
+            <h3>Délégation bornée</h3>
+            <p>Un sous-agent reçoit une mission étroite, assez de contexte, et des limites claires pour ne pas diverger.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="scenario" class="story-section scenario-section" data-section="scenario">
+        <div class="section-copy narrow">
+          <p class="eyebrow">6 · Bac à sable</p>
+          <h2>Choisis une demande et observe quelles couches deviennent indispensables.</h2>
+          <p>
+            Plus la demande touche au dépôt réel, plus le harnais doit ajouter d’état, d’outils, de permissions et de
+            vérification. Le modèle reste le moteur ; le harnais définit le terrain de travail.
+          </p>
+        </div>
+
+        <div class="scenario-sandbox" data-scenario-demo>
+          <div class="scenario-controls" role="group" aria-label="Demandes possibles">
+            <button class="scenario-button is-active" type="button" data-scenario="explain" aria-pressed="true">
+              Expliquer un extrait
+            </button>
+            <button class="scenario-button" type="button" data-scenario="fix" aria-pressed="false">
+              Corriger un test
+            </button>
+            <button class="scenario-button" type="button" data-scenario="risky" aria-pressed="false">
+              Modifier un fichier sensible
+            </button>
+            <button class="scenario-button" type="button" data-scenario="parallel" aria-pressed="false">
+              Explorer en parallèle
+            </button>
+          </div>
+
+          <article class="scenario-result" aria-live="polite">
+            <span class="result-kicker">Harnais minimum</span>
+            <h3 data-scenario-title>Contexte court + réponse</h3>
+            <p data-scenario-copy>
+              Une explication locale peut rester proche du chat, à condition que le bon extrait soit déjà dans le
+              prompt.
+            </p>
+            <div class="requirement-grid" aria-label="Couches necessaires">
+              <span data-scenario-one>Prompt clair</span>
+              <span data-scenario-two>Contexte fourni</span>
+              <span data-scenario-three>Pas d’exécution</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="sources" class="story-section sources-section" data-section="sources">
+        <div class="recap-layout">
+          <div>
+            <p class="eyebrow">Règle de poche</p>
+            <h2>Quand l’agent réussit, le harnais a transformé l’intelligence en processus.</h2>
+          </div>
+          <ol class="recap-list">
+            <li>Le modèle choisit et formule ; le harnais fournit contexte, outils et état.</li>
+            <li>La boucle observe, agit, vérifie et réduit le contexte pour continuer.</li>
+            <li>Les garde-fous ne brident pas seulement le modèle : ils rendent son travail exploitable.</li>
+            <li>La qualité perçue d’un agent dépend autant du harnais que du modèle choisi.</li>
+          </ol>
+        </div>
+
+        <source-list
+          kicker="Références"
+          title="Articles sources"
+          summary="Les deux articles utilisés pour construire le modèle mental de cette page."
+          aria-label="Articles sources"
+        >
+          <a
+            href="https://www.langchain.com/blog/the-anatomy-of-an-agent-harness"
+            data-source-meta="LangChain"
+            data-source-description="Définition du harnais, primitives de filesystem, outils, sandbox, mémoire, compaction et long horizon."
+            >The Anatomy of an Agent Harness</a
+          >
+          <a
+            href="https://magazine.sebastianraschka.com/p/components-of-a-coding-agent"
+            data-source-meta="Sebastian Raschka"
+            data-source-description="Décomposition d’un agent de code en contexte repo, prompt stable, outils, réduction du contexte, mémoire et sous-agents."
+            >Components of A Coding Agent</a
+          >
+        </source-list>
+      </section>
+    </main>
+
+    <noscript>
+      <p class="noscript">
+        La page reste lisible sans JavaScript. Active JavaScript pour les états interactifs et la progression de
+        lecture.
+      </p>
+    </noscript>
+  </body>
+</html>
