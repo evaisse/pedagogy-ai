@@ -32,7 +32,7 @@ body {
     linear-gradient(180deg, #eef4fb 0, var(--paper) 42rem),
     var(--paper);
   color: var(--ink);
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-family: var(--font-ui);
   line-height: 1.5;
 }
 
@@ -62,7 +62,7 @@ select {
 
 code,
 pre {
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-family: var(--font-code);
 }
 
 .skip-link {
@@ -243,14 +243,14 @@ p {
 
 h1 {
   margin-bottom: 22px;
-  font-size: clamp(3rem, 7vw, 5.2rem);
+  font-size: 4.55rem;
   line-height: 0.95;
   letter-spacing: 0;
 }
 
 h2 {
   margin-bottom: 18px;
-  font-size: clamp(2.2rem, 5vw, 3.45rem);
+  font-size: 3.1rem;
   line-height: 1;
   letter-spacing: 0;
 }
@@ -269,7 +269,7 @@ h3 {
   font-size: 1.16rem;
 }
 
-.section-copy p:not(.eyebrow),
+.section-copy p:not(.eyebrow):not(.chapter-folio),
 .demo-heading p:not(.eyebrow) {
   color: var(--muted);
   font-size: 1.03rem;
@@ -1129,13 +1129,13 @@ concept-callout:not(:defined) p {
 }
 
 .a2ui-text[data-variant="h1"] {
-  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-size: 2.35rem;
   font-weight: 860;
   line-height: 1;
 }
 
 .a2ui-text[data-variant="h2"] {
-  font-size: clamp(1.45rem, 4vw, 2.05rem);
+  font-size: 1.72rem;
   font-weight: 840;
   line-height: 1.08;
 }
@@ -1313,7 +1313,7 @@ concept-callout:not(:defined) p {
   .split-section.reverse,
   .catalog-grid,
   .demo-workbench {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .split-section.reverse .section-copy {
@@ -1347,6 +1347,11 @@ concept-callout:not(:defined) p {
     padding: 72px 18px;
   }
 
+  .hero > *,
+  .story-section > * {
+    max-width: calc(100vw - 36px);
+  }
+
   .site-header {
     padding: 12px 18px;
   }
@@ -1358,7 +1363,7 @@ concept-callout:not(:defined) p {
   .hero-rail,
   .concept-board,
   .stream-stage {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .flow-node,

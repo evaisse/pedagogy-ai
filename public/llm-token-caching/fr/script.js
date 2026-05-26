@@ -1,7 +1,3 @@
-const sections = Array.from(document.querySelectorAll("[data-section]"));
-const navLinks = Array.from(document.querySelectorAll("[data-nav-link]"));
-const progressFill = document.querySelector("[data-progress-fill]");
-
 const chatDemo = document.querySelector("[data-chat-demo]");
 const chatStepButtons = Array.from(document.querySelectorAll("[data-chat-step]"));
 const chatTitle = document.querySelector("[data-chat-title]");
@@ -28,8 +24,6 @@ const workIndexOutput = document.querySelector("[data-work-index]");
 const meterHit = document.querySelector("[data-meter-hit]");
 const meterMiss = document.querySelector("[data-meter-miss]");
 const simNote = document.querySelector("[data-sim-note]");
-
-let ticking = false;
 
 const chatSteps = {
   cold: {
@@ -59,31 +53,6 @@ const chatSteps = {
 
 function formatTokens(valueInThousands) {
   return `${Math.round(valueInThousands)}k`;
-}
-
-function updateProgress() {
-  const scrollTop = window.scrollY || document.documentElement.scrollTop;
-  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-  const ratio = maxScroll > 0 ? scrollTop / maxScroll : 0;
-  progressFill.style.width = `${Math.min(100, Math.max(0, ratio * 100))}%`;
-  updateActiveFromScroll();
-  ticking = false;
-}
-
-function requestProgressUpdate() {
-  if (ticking) return;
-  ticking = true;
-  window.requestAnimationFrame(updateProgress);
-}
-
-function setActiveSection(id) {
-  sections.forEach((section) => {
-    section.classList.toggle("is-active", section.dataset.section === id);
-  });
-
-  navLinks.forEach((link) => {
-    link.classList.toggle("is-active", link.dataset.navLink === id);
-  });
 }
 
 function setChatStep(step) {
@@ -149,22 +118,6 @@ function bindConversationDemos() {
   });
 }
 
-function updateActiveFromScroll() {
-  const headerHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--header-height")) || 0;
-  const marker = window.scrollY + headerHeight + 120;
-  let activeId = sections[0]?.dataset.section;
-
-  sections.forEach((section) => {
-    if (section.offsetTop <= marker) {
-      activeId = section.dataset.section;
-    }
-  });
-
-  if (activeId) {
-    setActiveSection(activeId);
-  }
-}
-
 function updateSimulator() {
   const stablePrefix = Number(prefixInput.value);
   const volatileTail = Number(tailInput.value);
@@ -217,10 +170,6 @@ function bindSimulator() {
   updateSimulator();
 }
 
-window.addEventListener("scroll", requestProgressUpdate, { passive: true });
-window.addEventListener("resize", requestProgressUpdate);
-
 bindChatDemo();
 bindConversationDemos();
 bindSimulator();
-updateProgress();

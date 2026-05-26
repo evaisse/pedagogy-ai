@@ -21,8 +21,7 @@
 body {
   background: var(--paper);
   color: var(--ink);
-  font-family:
-    Verdana, Geneva, Tahoma, sans-serif;
+  font-family: var(--font-ui);
 }
 
 body::before {
@@ -48,7 +47,7 @@ button {
 }
 
 code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-family: var(--font-code);
   font-size: 0.92em;
 }
 
@@ -234,7 +233,7 @@ h3 {
 }
 
 .lead,
-.section-copy p {
+.section-copy p:not(.chapter-folio) {
   color: var(--muted);
   font-size: 1.05rem;
 }
@@ -776,7 +775,7 @@ td:first-child {
   .hero,
   .split-section,
   .split-section.reverse {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .split-section.reverse .section-copy {
@@ -792,7 +791,7 @@ td:first-child {
   }
 
   .scenario-sandbox {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -806,6 +805,11 @@ td:first-child {
     padding: 58px 18px;
   }
 
+  .hero > *,
+  .story-section > * {
+    max-width: calc(100vw - 36px);
+  }
+
   h1 {
     font-size: 2.18rem;
   }
@@ -815,7 +819,7 @@ td:first-child {
   }
 
   .lead,
-  .section-copy p {
+  .section-copy p:not(.chapter-folio) {
     font-size: 1rem;
   }
 
@@ -833,7 +837,7 @@ td:first-child {
   .sync-strip,
   .requirement-grid,
   .boundary-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .boundary-row strong {

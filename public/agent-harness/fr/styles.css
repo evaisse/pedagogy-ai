@@ -30,7 +30,7 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-family: var(--font-ui);
   line-height: 1.5;
 }
 
@@ -57,7 +57,7 @@ button {
 
 code,
 pre {
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-family: var(--font-code);
 }
 
 .skip-link {
@@ -252,7 +252,7 @@ h3 {
 }
 
 .lead,
-.section-copy p {
+.section-copy p:not(.chapter-folio) {
   color: var(--muted);
   font-size: 1.08rem;
 }
@@ -882,7 +882,7 @@ source-list:not(:defined) a:hover {
   .context-board,
   .continuity-grid,
   .recap-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .split-section.reverse .section-copy {
@@ -917,6 +917,11 @@ source-list:not(:defined) a:hover {
     padding: 58px 18px;
   }
 
+  .hero > *,
+  .story-section > * {
+    max-width: calc(100vw - 36px);
+  }
+
   h1 {
     font-size: 2.32rem;
   }
@@ -926,7 +931,7 @@ source-list:not(:defined) a:hover {
   }
 
   .lead,
-  .section-copy p {
+  .section-copy p:not(.chapter-folio) {
     font-size: 1rem;
   }
 
@@ -943,7 +948,7 @@ source-list:not(:defined) a:hover {
   .prompt-diagram,
   .scenario-sandbox,
   .requirement-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .stage-node,

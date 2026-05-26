@@ -21,6 +21,8 @@ The public index is available at `/` when serving the `public/` directory.
 public/
   index.html                    # Mini-site index
   reset.css                     # Shared baseline CSS
+  story.css                     # Shared editorial layout primitives
+  story.js                      # Shared scroll progress and active section state
   _components/                  # Reusable vanilla Web Components
   throttle-debounce/en/         # English throttle/debounce demo
   llm-token-caching/fr/         # French LLM token caching explainer
@@ -31,6 +33,18 @@ docs/prd/                       # Planning documents
 skills/                         # Repository-local Codex skills
 Makefile                        # Local development tasks
 ```
+
+## Design References
+
+The shared story layout uses a small set of editorial and interactive-article references:
+
+- [Distill](https://distill.pub/about/) for figure widths, margins, and web-native research communication.
+- [Gwern/Tufte sidenotes](https://gwern.net/sidenote) for margin notes that keep supporting context near the prose.
+- [Bret Victor's Explorable Explanations](https://worrydream.com/ExplorableExplanations/) and
+  [Nicky Case's explorable explanation process](https://blog.ncase.me/how-i-make-an-explorable-explanation/) for
+  static-first interactive explanations.
+- [VISxAI](https://visxai.io/) for the broader research initiative around interactive visualization and AI
+  explanation.
 
 ## Reusable Components
 

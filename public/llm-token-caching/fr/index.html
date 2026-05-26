@@ -13,8 +13,10 @@
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23f7f5ef'/%3E%3Cpath d='M18 35h10v10H18zM36 35h10v10H36zM27 19h10v10H27z' fill='%2300856f'/%3E%3C/svg%3E"
     />
     <link rel="stylesheet" href="../../reset.css?v=20260519" />
-    <link rel="stylesheet" href="./styles.css?v=20260524-home" />
+    <link rel="stylesheet" href="../../story.css?v=20260525-editorial3" />
+    <link rel="stylesheet" href="./styles.css?v=20260525-editorial" />
     <script type="module" src="../../_components/source-list/source-list.js"></script>
+    <script src="../../story.js?v=20260525-editorial3" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#content">Aller au contenu</a>
@@ -131,6 +133,7 @@
 
       <section id="prefix" class="story-section split-section" data-section="prefix">
         <div class="section-copy">
+          <p class="chapter-folio">Chapitre 01 · Lire</p>
           <p class="eyebrow">1 · Modèle mental</p>
           <h2>Un cache de LLM est surtout un cache de préfixe.</h2>
           <p>
@@ -141,6 +144,21 @@
             Le cache ne cherche pas une idée « proche ». Il reconnaît une entrée compatible selon les règles du
             fournisseur : même modèle, même endpoint ou configuration pertinente, même préfixe exploitable.
           </p>
+          <aside class="margin-note">
+            <strong>Règle de lecture</strong>
+            Lis d’abord la scène comme deux lignes imprimées : ce qui reste aligné est le candidat au cache, ce qui
+            dépasse change à chaque tour.
+          </aside>
+          <dl class="definition-strip" aria-label="Définitions du cache de prompt">
+            <div>
+              <dt>Préfixe</dt>
+              <dd>La partie stable au début du prompt, assez identique pour être reprise par l’endpoint.</dd>
+            </div>
+            <div>
+              <dt>Suffixe</dt>
+              <dd>La demande récente, les diffs et les sorties fraîches qui doivent encore être lus normalement.</dd>
+            </div>
+          </dl>
         </div>
 
         <div class="sticky-visual prefix-visual" aria-label="Deux prompts partageant le meme prefixe">
@@ -234,6 +252,9 @@
             La génération de sortie reste du vrai calcul. Le cache ne remplace pas le raisonnement ni les tokens
             produits par le modèle.
           </p>
+          <blockquote class="pull-quote">
+            Le cache n’est pas une mémoire du sens : c’est une économie sur une répétition exacte.
+          </blockquote>
         </div>
 
         <div class="sticky-visual timeline-visual" aria-label="Chronologie d'un cache froid puis chaud">
@@ -853,6 +874,6 @@
       </p>
     </noscript>
 
-    <script src="./script.js?v=20260519-dialogue" defer></script>
+    <script src="./script.js?v=20260525-editorial" defer></script>
   </body>
 </html>

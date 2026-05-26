@@ -405,7 +405,6 @@ const refs = {
   playerReset: document.querySelector("[data-player-reset]"),
   playerStatus: document.querySelector("[data-player-status]"),
   playerStep: document.querySelector("[data-player-step]"),
-  progressFill: document.querySelector("[data-progress-fill]"),
   renderSample: document.querySelector("[data-render-sample]"),
   renderPanels: Array.from(document.querySelectorAll("[data-render-panel]")),
   renderTabs: Array.from(document.querySelectorAll("[data-render-tab]")),
@@ -671,36 +670,6 @@ function setRenderLoading(isLoading) {
     setRenderTab("surface");
     refs.surface.append(createRenderLoader());
   }
-}
-
-function updateScrollProgress() {
-  const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-  const progress = scrollable <= 0 ? 0 : window.scrollY / scrollable;
-  refs.progressFill.style.width = `${Math.min(100, Math.max(0, progress * 100))}%`;
-}
-
-function setupSectionObserver() {
-  const navLinks = Array.from(document.querySelectorAll("[data-nav-link]"));
-  const sections = Array.from(document.querySelectorAll("[data-section]"));
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      const visibleEntry = entries
-        .filter((entry) => entry.isIntersecting)
-        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-
-      if (!visibleEntry) return;
-
-      const sectionId = visibleEntry.target.id;
-      navLinks.forEach((link) => {
-        const isActive = link.getAttribute("href") === `#${sectionId}`;
-        link.classList.toggle("is-active", isActive);
-      });
-    },
-    { rootMargin: "-25% 0px -55% 0px", threshold: [0.12, 0.28, 0.46] },
-  );
-
-  sections.forEach((section) => observer.observe(section));
 }
 
 function setStreamStep(name) {
@@ -1718,11 +1687,6 @@ function bindDemoEvents() {
 }
 
 function init() {
-  window.addEventListener("scroll", updateScrollProgress, { passive: true });
-  window.addEventListener("resize", updateScrollProgress);
-  updateScrollProgress();
-  setupSectionObserver();
-
   document.querySelectorAll("[data-stream-step]").forEach((button) => {
     button.addEventListener("click", () => setStreamStep(button.dataset.streamStep));
   });

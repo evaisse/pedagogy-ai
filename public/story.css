@@ -1,0 +1,224 @@
+:root {
+  --font-prose: Iowan Old Style, Charter, Georgia, serif;
+  --font-ui: Verdana, Geneva, Tahoma, sans-serif;
+  --font-code: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --story-measure: 62ch;
+  --story-note-measure: 22ch;
+  --story-section-block: 96px;
+  --story-section-inline: 28px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-ui);
+  overflow-x: clip;
+}
+
+code,
+pre,
+kbd,
+samp {
+  font-family: var(--font-code);
+}
+
+.code-panel code,
+.hero-code code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+h1,
+h2,
+.lead,
+.section-copy p:not(.eyebrow):not(.chapter-folio),
+.pull-quote,
+.margin-note {
+  font-family: var(--font-prose);
+}
+
+h1,
+h2,
+.lead,
+.section-copy p:not(.eyebrow):not(.chapter-folio) {
+  text-wrap: pretty;
+}
+
+.lead,
+.section-copy p:not(.eyebrow):not(.chapter-folio) {
+  max-width: var(--story-measure);
+}
+
+.story-section {
+  position: relative;
+  width: 100%;
+}
+
+.section-copy {
+  min-width: 0;
+}
+
+.hero > *,
+.story-section > * {
+  min-width: 0;
+}
+
+.chapter-folio {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-family: var(--font-ui);
+  font-size: 0.74rem;
+  font-weight: 820;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.chapter-folio::before {
+  display: block;
+  width: 42px;
+  height: 1px;
+  background: var(--line-strong, var(--line));
+  content: "";
+}
+
+.margin-note {
+  max-width: var(--story-note-measure);
+  margin: 18px 0;
+  padding: 12px 0 12px 14px;
+  border-left: 2px solid var(--line-strong, var(--line));
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.margin-note strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 850;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.pull-quote {
+  max-width: 34ch;
+  margin: 30px 0;
+  padding: 4px 0 4px 18px;
+  border-left: 4px solid var(--line-strong, var(--line));
+  color: var(--ink);
+  font-size: 1.35rem;
+  line-height: 1.25;
+}
+
+.definition-strip {
+  clear: both;
+  display: grid;
+  gap: 12px;
+  margin: 28px 0 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.definition-strip dt {
+  margin: 0 0 4px;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.definition-strip dd {
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--font-prose);
+  font-size: 0.98rem;
+  line-height: 1.45;
+}
+
+.wide-visual {
+  width: min(1180px, calc(100% - 56px));
+  margin-right: auto;
+  margin-left: auto;
+}
+
+@media (min-width: 1180px) {
+  .section-copy .margin-note {
+    float: right;
+    width: min(42%, var(--story-note-measure));
+    margin: 4px 0 18px 24px;
+  }
+
+  .section-copy.narrow .margin-note,
+  .section-copy.wide .margin-note {
+    float: none;
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --story-section-block: 58px;
+    --story-section-inline: 18px;
+  }
+
+  h1 {
+    font-size: 2.45rem;
+  }
+
+  h2 {
+    font-size: 1.9rem;
+  }
+
+  .lead,
+  .section-copy p:not(.eyebrow):not(.chapter-folio) {
+    font-size: 1.04rem;
+  }
+
+  .chapter-folio {
+    margin-bottom: 12px;
+  }
+
+  .chapter-folio::before {
+    width: 30px;
+  }
+
+  .margin-note {
+    max-width: none;
+    margin: 16px 0 22px;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--line-strong, var(--line));
+    background: rgb(255 253 248 / 62%);
+  }
+
+  .pull-quote {
+    max-width: none;
+    font-size: 1.15rem;
+  }
+
+  .hero > *,
+  .story-section > * {
+    max-width: calc(100vw - (2 * var(--story-section-inline)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

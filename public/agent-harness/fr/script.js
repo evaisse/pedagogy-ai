@@ -1,7 +1,3 @@
-const sections = Array.from(document.querySelectorAll("[data-section]"));
-const navLinks = Array.from(document.querySelectorAll("[data-nav-link]"));
-const progressFill = document.querySelector("[data-progress-fill]");
-
 const harnessModes = {
   chat: {
     request: "Explique ce bug",
@@ -100,8 +96,6 @@ const scenarios = {
   },
 };
 
-let ticking = false;
-
 function setActiveButton(buttons, activeButton) {
   buttons.forEach((button) => {
     const isActive = button === activeButton;
@@ -166,54 +160,6 @@ function updateScenario(key, activeButton) {
   setActiveButton(Array.from(root.querySelectorAll("[data-scenario]")), activeButton);
 }
 
-function setActiveSection(id) {
-  sections.forEach((section) => {
-    section.classList.toggle("is-active", section.dataset.section === id);
-  });
-
-  navLinks.forEach((link) => {
-    link.classList.toggle("is-active", link.dataset.navLink === id);
-  });
-}
-
-function updateActiveFromScroll() {
-  const headerHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--header-height")) || 0;
-  const marker = window.scrollY + headerHeight + 120;
-  let activeId = sections[0]?.dataset.section;
-
-  sections.forEach((section) => {
-    if (section.offsetTop <= marker) {
-      activeId = section.dataset.section;
-    }
-  });
-
-  if (activeId) {
-    setActiveSection(activeId);
-  }
-}
-
-function updateProgress() {
-  const scrollTop = window.scrollY || document.documentElement.scrollTop;
-  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-  const ratio = maxScroll > 0 ? scrollTop / maxScroll : 0;
-
-  if (progressFill) {
-    progressFill.style.width = `${Math.min(100, Math.max(0, ratio * 100))}%`;
-  }
-
-  updateActiveFromScroll();
-  ticking = false;
-}
-
-function requestProgressUpdate() {
-  if (ticking) {
-    return;
-  }
-
-  ticking = true;
-  window.requestAnimationFrame(updateProgress);
-}
-
 document.querySelectorAll("[data-harness-mode]").forEach((button) => {
   button.addEventListener("click", () => updateHarnessMode(button.dataset.harnessMode, button));
 });
@@ -225,8 +171,3 @@ document.querySelectorAll("[data-loop-step]").forEach((button) => {
 document.querySelectorAll("[data-scenario]").forEach((button) => {
   button.addEventListener("click", () => updateScenario(button.dataset.scenario, button));
 });
-
-window.addEventListener("scroll", requestProgressUpdate, { passive: true });
-window.addEventListener("resize", requestProgressUpdate);
-
-updateProgress();

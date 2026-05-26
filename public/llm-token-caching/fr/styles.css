@@ -30,8 +30,7 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family:
-    Verdana, Geneva, Tahoma, sans-serif;
+  font-family: var(--font-ui);
   line-height: 1.5;
 }
 
@@ -242,7 +241,7 @@ h3 {
 }
 
 .lead,
-.section-copy p {
+.section-copy p:not(.chapter-folio) {
   color: var(--muted);
   font-size: 1.08rem;
 }
@@ -1371,7 +1370,7 @@ source-list:not(:defined) a:hover {
   .split-section.reverse,
   .simulator,
   .recap-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .split-section.reverse .section-copy {
@@ -1392,7 +1391,7 @@ source-list:not(:defined) a:hover {
   .break-even-panel,
   .formula-grid,
   .demo-panel {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .chapter-demo-header {
@@ -1444,6 +1443,11 @@ source-list:not(:defined) a:hover {
     padding-bottom: 58px;
   }
 
+  .hero > *,
+  .story-section > * {
+    max-width: calc(100vw - 36px);
+  }
+
   h1 {
     font-size: 2.55rem;
   }
@@ -1485,7 +1489,7 @@ source-list:not(:defined) a:hover {
   .breaker-grid,
   .provider-grid,
   .formula-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .cache-token {
@@ -1499,7 +1503,7 @@ source-list:not(:defined) a:hover {
   }
 
   .prompt-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .row-label,
@@ -1513,7 +1517,7 @@ source-list:not(:defined) a:hover {
   }
 
   .timeline-step {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .simulator {

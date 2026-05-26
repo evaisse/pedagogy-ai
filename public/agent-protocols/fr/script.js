@@ -221,31 +221,3 @@ document.querySelectorAll("[data-channel-option]").forEach((button) => {
 document.querySelectorAll("[data-scenario-option]").forEach((button) => {
   button.addEventListener("click", () => updateScenarioDemo(button.dataset.scenarioOption, button));
 });
-
-const progressFill = document.querySelector("[data-progress-fill]");
-const navLinks = [...document.querySelectorAll("[data-nav-link]")];
-const sections = [...document.querySelectorAll("[data-section]")];
-
-const updateProgress = () => {
-  if (progressFill) {
-    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-    const progress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
-    progressFill.style.width = `${Math.min(progress * 100, 100)}%`;
-  }
-
-  const activeSection = sections
-    .filter((section) => section.getBoundingClientRect().top <= 120)
-    .at(-1);
-
-  if (!activeSection) {
-    return;
-  }
-
-  navLinks.forEach((link) => {
-    link.classList.toggle("is-active", link.dataset.navLink === activeSection.dataset.section);
-  });
-};
-
-updateProgress();
-window.addEventListener("scroll", updateProgress, { passive: true });
-window.addEventListener("resize", updateProgress);

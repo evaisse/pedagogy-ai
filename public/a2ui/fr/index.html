@@ -13,12 +13,14 @@
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23f4f7fb'/%3E%3Cpath d='M14 18h36v8H14zM14 32h16v14H14zM36 32h14v14H36z' fill='%230b7f68'/%3E%3C/svg%3E"
     />
     <link rel="stylesheet" href="../../reset.css?v=20260519" />
-    <link rel="stylesheet" href="./styles.css?v=20260524-concept-callout" />
+    <link rel="stylesheet" href="../../story.css?v=20260525-editorial3" />
+    <link rel="stylesheet" href="./styles.css?v=20260525-editorial" />
     <script type="module" src="../../_components/concept-callout/concept-callout.js"></script>
     <script type="module" src="../../_components/openai-endpoint-settings/openai-endpoint-settings.js"></script>
     <script type="module" src="../../_components/source-list/source-list.js"></script>
     <script type="module" src="../../_components/token-flow/token-flow.js"></script>
-    <script src="./script.js?v=20260524-json-tab" defer></script>
+    <script src="../../story.js?v=20260525-editorial3" defer></script>
+    <script src="./script.js?v=20260525-editorial" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#content">Aller au contenu</a>
@@ -91,6 +93,7 @@
 
       <section id="model" class="story-section split-section" data-section="model">
         <div class="section-copy">
+          <p class="chapter-folio">Chapitre 01 · Décomposer</p>
           <p class="eyebrow">1 · Modèle mental</p>
           <h2>A2UI sépare ce que l’agent décide de ce que le navigateur exécute.</h2>
           <p>
@@ -101,6 +104,11 @@
             Cette séparation explique l’intérêt du protocole : la même intention peut voyager via AG-UI, A2A, SSE ou
             WebSocket, tandis que chaque client garde son rendu natif.
           </p>
+          <aside class="margin-note">
+            <strong>Point de contrôle</strong>
+            Le client accepte une description déclarative, pas du code libre. C’est ce qui rend la scène inspectable et
+            remplaçable.
+          </aside>
           <concept-callout
             variant="story"
             theme="theater"
