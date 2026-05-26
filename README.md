@@ -8,6 +8,7 @@ Local development tasks are exposed through `make` and use `npx` for the Vite de
 ## Available Mini-Sites
 
 - `/throttle-debounce/en/` — interactive demo explaining throttle and debounce event flows.
+- `/llm-endpoint-apis/fr/` — French vertical explainer comparing Chat Completions, Responses, Assistants, and legacy Completions API contracts.
 - `/llm-token-caching/fr/` — French vertical explainer about LLM prompt caching for coding agents.
 - `/agent-harness/fr/` — French vertical explainer about coding-agent harnesses.
 - `/agent-protocols/fr/` — French vertical explainer comparing Agent Client Protocol, Agent Host Protocol, and agent-to-agent ACP.
@@ -25,6 +26,7 @@ public/
   story.js                      # Shared scroll progress and active section state
   _components/                  # Reusable vanilla Web Components
   throttle-debounce/en/         # English throttle/debounce demo
+  llm-endpoint-apis/fr/         # French LLM API endpoint contracts explainer
   llm-token-caching/fr/         # French LLM token caching explainer
   agent-harness/fr/             # French coding-agent harness explainer
   agent-protocols/fr/           # French ACP/AHP explainer

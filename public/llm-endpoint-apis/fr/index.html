@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>API LLM : choisir le bon endpoint</title>
+    <meta
+      name="description"
+      content="Mini-site pedagogique en francais pour comparer Chat Completions, Responses, Assistants et Completions quand on parle a des endpoints LLM."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23f4f7fb'/%3E%3Cpath d='M12 18h40v9H12zM12 35h18v11H12zM36 35h16v11H36z' fill='%230b7f68'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="../../reset.css?v=20260519" />
+    <link rel="stylesheet" href="../../story.css?v=20260525-editorial3" />
+    <link rel="stylesheet" href="./styles.css?v=20260526-endpoints2" />
+    <script
+      type="module"
+      src="../../_components/source-list/source-list.js"
+    ></script>
+    <script src="../../story.js?v=20260525-editorial3" defer></script>
+    <script src="./script.js?v=20260526-endpoints" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Aller au contenu</a>
+    <div class="scroll-progress" aria-hidden="true">
+      <span data-progress-fill></span>
+    </div>
+
+    <header class="site-header" aria-label="Navigation de la page">
+      <div class="header-start">
+        <a class="home-link" href="../../" aria-label="Retour à l’accueil"
+          >Accueil</a
+        >
+        <a class="brand" href="#top" aria-label="Retour au debut">
+          <span class="brand-mark" aria-hidden="true">API</span>
+          Endpoints LLM
+        </a>
+      </div>
+      <nav class="story-nav" aria-label="Chapitres">
+        <a href="#contracts" data-nav-link="contracts">Contrats</a>
+        <a href="#shape" data-nav-link="shape">Forme</a>
+        <a href="#state" data-nav-link="state">État</a>
+        <a href="#tools" data-nav-link="tools">Outils</a>
+        <a href="#decision" data-nav-link="decision">Choisir</a>
+        <a href="#sources" data-nav-link="sources">Sources</a>
+      </nav>
+    </header>
+
+    <main id="content">
+      <section id="top" class="hero story-section" data-section="top">
+        <div class="hero-copy">
+          <p class="eyebrow">Contrats d’API pour modèles LLM</p>
+          <h1>
+            L’endpoint que tu choisis décide de ce que ton application doit
+            porter.
+          </h1>
+          <p class="lead">
+            Chat Completions parle en messages. Responses parle en items et peut
+            porter l’état, les outils et une part du raisonnement serveur. Les
+            anciens endpoints restent utiles surtout pour comprendre les
+            migrations.
+          </p>
+          <div class="hero-actions" aria-label="Actions rapides">
+            <a class="button primary" href="#contracts">Voir la carte</a>
+            <a class="button secondary" href="#decision">Choisir un endpoint</a>
+          </div>
+        </div>
+
+        <div
+          class="hero-visual api-switcher"
+          data-api-switcher
+          data-active-api="chat"
+        >
+          <div class="visual-heading">
+            <span>Deux appels, deux contrats</span>
+            <strong data-api-title
+              >Chat Completions : une conversation en messages.</strong
+            >
+          </div>
+
+          <div
+            class="segmented-control"
+            role="group"
+            aria-label="Comparer les endpoints"
+          >
+            <button
+              class="segment-button is-active"
+              type="button"
+              data-api-option="chat"
+              aria-pressed="true"
+            >
+              Chat
+            </button>
+            <button
+              class="segment-button"
+              type="button"
+              data-api-option="responses"
+              aria-pressed="false"
+            >
+              Responses
+            </button>
+          </div>
+
+          <div class="endpoint-path" aria-label="Endpoint actif">
+            <span>Méthode</span>
+            <code data-api-path>POST /v1/chat/completions</code>
+          </div>
+
+          <div class="code-grid">
+            <article class="code-card">
+              <span>Entrée</span>
+              <pre><code data-request-code>const completion = await client.chat.completions.create({
+  model: "gpt-5",
+  messages: [
+    { role: "system", content: "You are a helpful assistant." },
+    { role: "user", content: "Hello!" }
+  ]
+});</code></pre>
+            </article>
+            <article class="code-card">
+              <span>Sortie utile</span>
+              <pre><code data-response-code>const text = completion.choices[0].message.content;</code></pre>
+            </article>
+          </div>
+
+          <p class="switcher-note" data-api-note>
+            Tu reconstruis toi-même le tableau <code>messages</code> à chaque
+            tour. C’est simple, portable et très compatible avec les gateways
+            multi-fournisseurs.
+          </p>
+        </div>
+      </section>
+
+      <section
+        id="contracts"
+        class="story-section contracts-section"
+        data-section="contracts"
+      >
+        <div class="section-copy narrow">
+          <p class="chapter-folio">Chapitre 01 · Situer</p>
+          <p class="eyebrow">1 · Carte des contrats</p>
+          <h2>
+            Les APIs ne changent pas seulement l’URL. Elles changent le modèle
+            mental.
+          </h2>
+          <p>
+            Un endpoint LLM est un contrat entre ton application et le
+            fournisseur : forme de l’entrée, forme de la sortie, responsabilité
+            de l’historique, représentation des outils et garanties disponibles.
+          </p>
+          <aside class="margin-note">
+            <strong>Point de vocabulaire</strong>
+            « Compatible OpenAI » signifie souvent compatible avec
+            <code>/v1/chat/completions</code>. Cela ne garantit pas que
+            <code>/v1/responses</code>, les outils hébergés ou les conversations
+            serveur soient disponibles.
+          </aside>
+        </div>
+
+        <div
+          class="contract-grid"
+          aria-label="Carte des principaux contrats d'API LLM"
+        >
+          <article class="contract-card legacy-card">
+            <span class="contract-index">01</span>
+            <p class="contract-kicker">Legacy</p>
+            <h3>Completions</h3>
+            <p>
+              Un prompt texte, une continuation. Utile pour l’héritage, rarement
+              le bon départ aujourd’hui.
+            </p>
+            <code>POST /v1/completions</code>
+          </article>
+          <article class="contract-card portable-card">
+            <span class="contract-index">02</span>
+            <p class="contract-kicker">Portable</p>
+            <h3>Chat Completions</h3>
+            <p>
+              Un tableau de messages avec rôles. Tu gardes l’historique et tu
+              l’envoies à chaque appel.
+            </p>
+            <code>POST /v1/chat/completions</code>
+          </article>
+          <article class="contract-card migration-card">
+            <span class="contract-index">03</span>
+            <p class="contract-kicker">Migration</p>
+            <h3>Assistants</h3>
+            <p>
+              Assistants, threads et runs. Le chemin actuel est de migrer vers
+              Responses et Conversations.
+            </p>
+            <code>threads → conversations</code>
+          </article>
+          <article class="contract-card agentic-card">
+            <span class="contract-index">04</span>
+            <p class="contract-kicker">Agentique</p>
+            <h3>Responses</h3>
+            <p>
+              Une réponse comme liste d’items : messages, raisonnement, appels
+              d’outils et sorties d’outils.
+            </p>
+            <code>POST /v1/responses</code>
+          </article>
+        </div>
+      </section>
+
+      <section
+        id="shape"
+        class="story-section split-section"
+        data-section="shape"
+      >
+        <div class="section-copy">
+          <p class="chapter-folio">Chapitre 02 · Lire la forme</p>
+          <p class="eyebrow">2 · Messages vs items</p>
+          <h2>
+            Chat ressemble à une transcription. Responses ressemble à un journal
+            d’exécution.
+          </h2>
+          <p>
+            Dans Chat Completions, l’unité centrale est le message : rôle,
+            contenu, parfois des appels d’outils collés à la réponse assistant.
+            Cette forme est excellente pour un chatbot classique.
+          </p>
+          <p>
+            Dans Responses, l’unité centrale est l’item. Un message est un item,
+            mais un appel de fonction, une sortie d’outil ou un bloc de
+            raisonnement en sont aussi. L’API décrit mieux ce que le modèle
+            fait, pas seulement ce qu’il dit.
+          </p>
+          <blockquote class="pull-quote">
+            Si ton UI doit montrer les étapes d’un agent, une liste typée
+            d’items est plus lisible qu’un seul message enrichi.
+          </blockquote>
+        </div>
+
+        <div
+          class="sticky-visual shape-board"
+          aria-label="Comparaison entre messages et items"
+        >
+          <div class="visual-heading">
+            <span>Deux structures</span>
+            <strong>La même demande, deux lectures différentes.</strong>
+          </div>
+
+          <div class="shape-columns">
+            <article class="shape-column chat-column">
+              <h3>Chat Completions</h3>
+              <div class="message-stack">
+                <span class="role-chip system-role">system</span>
+                <span class="message-line">Instructions</span>
+                <span class="role-chip user-role">user</span>
+                <span class="message-line">Question</span>
+                <span class="role-chip assistant-role">assistant</span>
+                <span class="message-line">Réponse + tool_calls</span>
+              </div>
+              <p>
+                Le fil est naturel à relire, mais l’application doit assembler
+                le prochain tour.
+              </p>
+            </article>
+
+            <article class="shape-column response-column">
+              <h3>Responses</h3>
+              <div class="item-stack">
+                <span class="item-pill message-item">message</span>
+                <span class="item-pill reasoning-item">reasoning</span>
+                <span class="item-pill call-item">function_call</span>
+                <span class="item-pill output-item">function_call_output</span>
+                <span class="item-pill message-item">message</span>
+              </div>
+              <p>
+                Le fil devient une trace typée : l’UI et le backend savent
+                distinguer parole, action et résultat.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="state"
+        class="story-section split-section reverse"
+        data-section="state"
+      >
+        <div class="section-copy">
+          <p class="eyebrow">3 · État conversationnel</p>
+          <h2>
+            Le vrai coût d’un chatbot multi-tour est souvent le transport de
+            l’historique.
+          </h2>
+          <p>
+            Avec Chat Completions, l’endpoint est stateless : ton application
+            stocke la conversation, compacte si besoin, puis renvoie le contexte
+            utile au prochain appel.
+          </p>
+          <p>
+            Avec Responses, tu peux encore tout gérer côté client, mais tu peux
+            aussi chaîner avec
+            <code>previous_response_id</code> ou utiliser une conversation
+            persistante. L’état devient une option de plateforme.
+          </p>
+          <aside class="margin-note">
+            <strong>Nuance importante</strong>
+            Stateful ne veut pas dire obligatoire. Pour certaines contraintes de
+            rétention, il faut désactiver le stockage ou utiliser les mécanismes
+            prévus par le fournisseur.
+          </aside>
+        </div>
+
+        <div class="sticky-visual state-lab" data-state-lab>
+          <div class="visual-heading">
+            <span>Simulateur pédagogique</span>
+            <strong>Qui transporte l’historique ?</strong>
+          </div>
+
+          <div
+            class="segmented-control"
+            role="group"
+            aria-label="Mode de gestion de l'historique"
+          >
+            <button
+              class="segment-button is-active"
+              type="button"
+              data-state-mode="chat"
+              aria-pressed="true"
+            >
+              Chat
+            </button>
+            <button
+              class="segment-button"
+              type="button"
+              data-state-mode="responses"
+              aria-pressed="false"
+            >
+              Responses
+            </button>
+          </div>
+
+          <label class="range-control">
+            <span>Nombre de tours</span>
+            <input
+              type="range"
+              min="1"
+              max="6"
+              value="4"
+              step="1"
+              data-turn-count
+            />
+            <output data-turn-output>4 tours</output>
+          </label>
+
+          <div class="state-meter" aria-label="Payload compare">
+            <div class="meter-row">
+              <span>Payload renvoyé</span>
+              <strong data-payload-output>5.1k</strong>
+              <div class="meter-track">
+                <span data-payload-meter style="width: 72%"></span>
+              </div>
+            </div>
+            <div class="meter-row">
+              <span>État côté serveur</span>
+              <strong data-server-output>0</strong>
+              <div class="meter-track">
+                <span data-server-meter style="width: 0%"></span>
+              </div>
+            </div>
+          </div>
+
+          <p class="lab-note" data-state-note>
+            En mode Chat, la charge visible côté client grandit avec la
+            conversation : tu renvoies les messages utiles à chaque tour.
+          </p>
+        </div>
+      </section>
+
+      <section
+        id="tools"
+        class="story-section split-section"
+        data-section="tools"
+      >
+        <div class="section-copy">
+          <p class="eyebrow">4 · Outils et raisonnement</p>
+          <h2>
+            Les agents font apparaître la différence entre « texte de réponse »
+            et « trace d’action ».
+          </h2>
+          <p>
+            Un appel d’outil n’est pas une phrase normale. Il a un nom, des
+            arguments, un identifiant de corrélation et une sortie. Plus ton
+            produit expose d’actions, plus la structure du contrat devient
+            importante.
+          </p>
+          <p>
+            Chat Completions sait faire du function calling, mais
+            l’orchestration reste surtout dans ton backend. Responses rend la
+            boucle plus explicite et ajoute des primitives pour les outils
+            hébergés, MCP, le code interpreter, la recherche et les modèles de
+            raisonnement.
+          </p>
+        </div>
+
+        <div
+          class="sticky-visual tool-loop"
+          aria-label="Deux boucles d'appel d'outil"
+        >
+          <div class="visual-heading">
+            <span>Boucle d’outil</span>
+            <strong>Le même geste, deux responsabilités.</strong>
+          </div>
+
+          <div class="loop-grid">
+            <article class="loop-card">
+              <h3>Chat Completions</h3>
+              <ol>
+                <li>
+                  Le modèle renvoie un message avec <code>tool_calls</code>.
+                </li>
+                <li>Ton backend exécute l’outil.</li>
+                <li>Tu ajoutes le résultat dans <code>messages</code>.</li>
+                <li>Tu rappelles le modèle.</li>
+              </ol>
+            </article>
+            <article class="loop-card highlighted">
+              <h3>Responses</h3>
+              <ol>
+                <li>La sortie contient des items typés.</li>
+                <li>
+                  <code>function_call</code> et
+                  <code>function_call_output</code> restent corrélés.
+                </li>
+                <li>Les outils hébergés peuvent réduire les allers-retours.</li>
+                <li>
+                  Le raisonnement peut persister sans exposer la chaîne brute.
+                </li>
+              </ol>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="compatibility"
+        class="story-section compatibility-section"
+        data-section="compatibility"
+      >
+        <div class="section-copy narrow">
+          <p class="eyebrow">5 · Portabilité</p>
+          <h2>
+            Le choix technique dépend aussi de ton écosystème de fournisseurs.
+          </h2>
+          <p>
+            Si tu veux basculer entre plusieurs endpoints « OpenAI-compatible »,
+            Chat Completions reste souvent le plus petit dénominateur commun. Si
+            tu construis une expérience agentique centrée sur OpenAI, Responses
+            donne accès aux primitives les plus récentes.
+          </p>
+        </div>
+
+        <div
+          class="compatibility-table"
+          role="table"
+          aria-label="Comparaison des API LLM"
+        >
+          <div class="table-row table-head" role="row">
+            <span role="columnheader">Contrat</span>
+            <span role="columnheader">Point fort</span>
+            <span role="columnheader">Risque à gérer</span>
+          </div>
+          <div class="table-row" role="row">
+            <span role="cell"><code>/v1/chat/completions</code></span>
+            <span role="cell"
+              >Interopérabilité, intégrations simples, contrôle manuel du
+              contexte.</span
+            >
+            <span role="cell"
+              >Historique, compaction, outils et état restent à orchestrer côté
+              app.</span
+            >
+          </div>
+          <div class="table-row" role="row">
+            <span role="cell"><code>/v1/responses</code></span>
+            <span role="cell"
+              >Items typés, état serveur, outils hébergés, raisonnement et
+              multimodalité.</span
+            >
+            <span role="cell"
+              >Support moins universel hors OpenAI ou gateways qui
+              l’implémentent vraiment.</span
+            >
+          </div>
+          <div class="table-row" role="row">
+            <span role="cell"><code>/v1/completions</code></span>
+            <span role="cell"
+              >Compatibilité avec de vieux prompts et quelques modèles
+              historiques.</span
+            >
+            <span role="cell"
+              >Modèle mental trop pauvre pour les nouveaux chatbots et
+              agents.</span
+            >
+          </div>
+          <div class="table-row" role="row">
+            <span role="cell">Assistants API</span>
+            <span role="cell"
+              >Historique d’objets assistant, threads, fichiers et runs.</span
+            >
+            <span role="cell"
+              >API dépréciée côté OpenAI : planifier la migration vers Responses
+              et Conversations.</span
+            >
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="decision"
+        class="story-section decision-section"
+        data-section="decision"
+      >
+        <div class="section-copy">
+          <p class="eyebrow">6 · Choisir</p>
+          <h2>
+            Le bon choix se lit dans le workflow, pas dans le nom du modèle.
+          </h2>
+          <p>
+            Pars du besoin opérationnel : portabilité, état conversationnel,
+            outils, conformité, migration. Le modèle peut rester le même pendant
+            que le contrat d’API change autour de lui.
+          </p>
+        </div>
+
+        <div class="decision-lab" data-decision-lab>
+          <div
+            class="scenario-list"
+            role="group"
+            aria-label="Choisir un scenario"
+          >
+            <button
+              class="scenario-button is-active"
+              type="button"
+              data-scenario="portable"
+              aria-pressed="true"
+            >
+              Chatbot multi-fournisseurs
+            </button>
+            <button
+              class="scenario-button"
+              type="button"
+              data-scenario="agent"
+              aria-pressed="false"
+            >
+              Agent avec outils
+            </button>
+            <button
+              class="scenario-button"
+              type="button"
+              data-scenario="compliance"
+              aria-pressed="false"
+            >
+              Contrainte de rétention
+            </button>
+            <button
+              class="scenario-button"
+              type="button"
+              data-scenario="migration"
+              aria-pressed="false"
+            >
+              Assistant existant
+            </button>
+          </div>
+
+          <article class="recommendation-card" aria-live="polite">
+            <span data-recommendation-kicker>Recommandation</span>
+            <h3 data-recommendation-title>Chat Completions</h3>
+            <p data-recommendation-copy>
+              Utilise Chat Completions si la priorité est de rester portable
+              entre fournisseurs et de garder le contrôle complet du contexte
+              côté application.
+            </p>
+            <dl class="recommendation-details">
+              <div>
+                <dt>Ce que tu gagnes</dt>
+                <dd data-recommendation-gain>
+                  Une forme de requête largement supportée.
+                </dd>
+              </div>
+              <div>
+                <dt>Ce que tu assumes</dt>
+                <dd data-recommendation-cost>
+                  La mémoire, la compaction et la boucle d’outils.
+                </dd>
+              </div>
+            </dl>
+          </article>
+        </div>
+      </section>
+
+      <section
+        id="sources"
+        class="story-section sources-section"
+        data-section="sources"
+      >
+        <div class="recap-layout">
+          <div>
+            <p class="eyebrow">Règle de poche</p>
+            <h2>
+              Plus le workflow devient agentique, plus le contrat doit décrire
+              des actions plutôt que du texte.
+            </h2>
+          </div>
+          <ol class="recap-list">
+            <li>Besoin portable et simple : commence avec Chat Completions.</li>
+            <li>
+              Besoin d’outils, d’état serveur ou de raisonnement persistant :
+              regarde Responses.
+            </li>
+            <li>
+              Besoin de conformité stricte : vérifie explicitement le stockage,
+              la rétention et le mode stateless.
+            </li>
+            <li>
+              Ancien Assistant : migre par flux nouveaux vers Responses et
+              Conversations, puis backfill si besoin.
+            </li>
+          </ol>
+        </div>
+
+        <source-list
+          kicker="Références"
+          title="Sources consultées"
+          summary="Documentation officielle utilisée pour vérifier les différences de forme, d’état, d’outils et de migration."
+          aria-label="Sources consultees"
+        >
+          <a
+            href="https://developers.openai.com/api/docs/guides/migrate-to-responses"
+            data-source-meta="Documentation officielle"
+            data-source-description="Guide OpenAI de migration de Chat Completions vers Responses, avec Messages vs Items, statefulness et differences de paramètres."
+            >Migrate to the Responses API</a
+          >
+          <a
+            href="https://developers.openai.com/api/docs/guides/conversation-state"
+            data-source-meta="Documentation officielle"
+            data-source-description="Guide OpenAI sur la gestion de l’état conversationnel, previous_response_id et Conversations."
+            >Conversation state</a
+          >
+          <a
+            href="https://developers.openai.com/api/docs/assistants/migration"
+            data-source-meta="Documentation officielle"
+            data-source-description="Guide de migration Assistants API vers Responses API et Conversations."
+            >Assistants migration guide</a
+          >
+          <a
+            href="https://developers.openai.com/api/docs/deprecations"
+            data-source-meta="Documentation officielle"
+            data-source-description="Page OpenAI des dépréciations, incluant la date de retrait de l’Assistants API."
+            >OpenAI deprecations</a
+          >
+          <a
+            href="https://developers.openai.com/blog/responses-api"
+            data-source-meta="Blog officiel"
+            data-source-description="Article OpenAI sur la motivation de Responses pour les workflows agentiques, les outils et le raisonnement."
+            >Why we built the Responses API</a
+          >
+          <a
+            href="https://platform.openai.com/docs/api-reference/chat"
+            data-source-meta="Référence API"
+            data-source-description="Référence OpenAI de l’endpoint Chat Completions."
+            >Chat Completions API reference</a
+          >
+          <a
+            href="https://platform.openai.com/docs/api-reference/responses"
+            data-source-meta="Référence API"
+            data-source-description="Référence OpenAI de l’endpoint Responses."
+            >Responses API reference</a
+          >
+        </source-list>
+      </section>
+    </main>
+
+    <noscript>
+      <p class="noscript">
+        La page reste lisible sans JavaScript. Active JavaScript pour le
+        comparateur, le simulateur et le sélecteur.
+      </p>
+    </noscript>
+  </body>
+</html>
